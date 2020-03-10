@@ -3,11 +3,11 @@ NodeJS wrapper around Zenoti APIs
 
 ## Installation
 ```shell
-> yarn add git+https://ca3aa90ab04849bc96c5eaa228eaa7598181f05b:x-oauth-basic@github.com/LiftOffLLC/zenoti-sdk.git#master
+> yarn add git+https://token:x-oauth-basic@github.com/LiftOffLLC/zenoti-sdk.git#master
 
 or
 
-> npm install --save git+https://ca3aa90ab04849bc96c5eaa228eaa7598181f05b:x-oauth-basic@github.com/LiftOffLLC/zenoti-sdk.git#master
+> npm install --save git+https://token:x-oauth-basic@github.com/LiftOffLLC/zenoti-sdk.git#master
 ```
 
 ## Enviroment Setup
