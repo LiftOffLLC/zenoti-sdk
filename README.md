@@ -53,6 +53,11 @@ client.bookings.getSlots(bookingID) // get slots by booking id
 client.bookings.reserveSlot(bookingID, slotTime); // reserve booking id against slot time
 client.bookings.confirmBooking(bookingID, notes) // config booking slot
 
+
+// services
+client.services
+  .fetch({ centerID: "c07c82cc-a5f9-4d9d-ad64-d89a3acfe3aa" }) // fetch sevices by center or location id
+
 ```
 ** Note : This section needs to be updated as adding more features.
 
