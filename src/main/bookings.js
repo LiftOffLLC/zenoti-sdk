@@ -1,12 +1,37 @@
-const Rest = require('./helper/rest');
+const Rest = require("./helper/rest");
 
 class Bookings extends Rest {
   /**
    * @name createBooking
-   * @param {Object} params
+   * @param {Object} data
    */
-  async createBooking(params) {
-    return await this.post('/v1/bookings', {}, params);
+  async createBooking({
+    centerID,
+    serviceID,
+    userID,
+    therapistID,
+    isOnlyCatalogEmployees,
+    date
+  }) {
+    const data = {
+      center_id: centerID,
+      is_only_catalog_employees: isOnlyCatalogEmployees,
+      date,
+      guests: [
+        {
+          id: userID,
+          items: [
+            {
+              item: {
+                id: serviceID
+              },
+              therapist: { id: therapistID }
+            }
+          ]
+        }
+      ]
+    };
+    return await this.post("/v1/bookings", {}, data);
   }
 
   /**
@@ -26,7 +51,7 @@ class Bookings extends Rest {
     return await this.post(
       `/v1/bookings/${bookingId}/slots/reserve`,
       {},
-      { slot_time: slotTime },
+      { slot_time: slotTime }
     );
   }
 
@@ -34,7 +59,7 @@ class Bookings extends Rest {
     return await this.post(
       `/v1/bookings/${bookingId}/slots/confirm`,
       {},
-      { notes },
+      { notes }
     );
   }
 }

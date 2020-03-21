@@ -47,7 +47,14 @@ const params = {};
 client.guests.createGuest(params) // create new zenoti user
 
 // Bookings
-const params = {};
+const params = {
+    centerID: "c07c82cc-a5f9-4d9d-ad64-d89a3acfe3aa",
+    isOnlyCatalogEmployees: false,
+    date: "2020-03-15",
+    userID: "4c6b1d06-c2b5-4143-a77f-c1936fe72b69",
+    serviceID: "3199d02a-165a-40a1-b601-690c261c1a81",
+    therapistID: ""
+};
 client.bookings.createBooking(params); // create booking
 client.bookings.getSlots(bookingID) // get slots by booking id
 client.bookings.reserveSlot(bookingID, slotTime); // reserve booking id against slot time
