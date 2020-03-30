@@ -135,18 +135,19 @@ class Employees extends Rest {
           } else {
           }
         } else {
-          
           Response.therapist_slots[therapistindex].available_times =
             Response.therapist_slots[therapistindex].schedule;
-            console.log('index', therapistindex, 'else', Response.therapist_slots[therapistindex].available_times[0])
+
           Response.therapist_slots[
             therapistindex
           ].available_times[0].end_time = this._subAppointmentInterval(
-            Response.therapist_slots[1].available_times[0].end_time,
+            Response.therapist_slots[therapistindex].available_times[0]
+              .end_time,
             Response.center_hours.appointment_interval
           );
         }
       });
+      return Response;
     }
   }
 
