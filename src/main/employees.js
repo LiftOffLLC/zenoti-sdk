@@ -1,4 +1,7 @@
 const Rest = require("./helper/rest");
+const _ = require("lodash");
+const { extendMoment } = require("moment-range");
+const Moment = extendMoment(require("moment"));
 
 class Employees extends Rest {
   /**
@@ -22,143 +25,141 @@ class Employees extends Rest {
       ]
     };
 
-    const response = await this.post(
-      "/v1/appointments/therapist_availability",
-      {},
-      params
+    const {
+      center_hours: centerHours,
+      therapist_slots: therapistSlots
+    } = await this.post("/v1/appointments/therapist_availability", {}, params);
+
+    const therapists = this._therapistAvailableSchedule(
+      therapistSlots,
+      centerHours.appointment_interval
     );
-    return this._therapistAvailableSchedule(response);
+
+    const therapistsWithSlots = _.map(therapists, therapist => {
+      therapist.slots = _.reduce(
+        therapist.available_times,
+        (slots, time) => {
+          const chunks = this._intervalChunks(
+            time.start_time,
+            time.end_time,
+            centerHours.appointment_interval
+          );
+          return _.concat(slots, chunks);
+        },
+        []
+      );
+      return therapist;
+    });
+
+    return {
+      centerHours,
+      therapists: therapistsWithSlots
+    };
   }
 
-  _therapistAvailableSchedule(Response) {
-    if (
-      Response &&
-      Response.therapist_slots &&
-      Response.therapist_slots.length > 0
-    ) {
-      Response.therapist_slots.forEach((therapist, therapistindex) => {
-        if (
-          therapist.unavailable_times &&
-          therapist.unavailable_times.length > 0
-        ) {
-          if (therapist.schedule && therapist.schedule.length == 1) {
-            therapist.unavailable_times.forEach(unavailabletimes => {
-              if (
-                Response.therapist_slots[therapistindex].available_times &&
-                Response.therapist_slots[therapistindex].available_times
-                  .length > 0
-              ) {
-                if (
-                  Response.therapist_slots[therapistindex].available_times[
-                    Response.therapist_slots[therapistindex].available_times
-                      .length - 1
-                  ].start_time <
-                  this._subAppointmentInterval(
-                    unavailabletimes.start_time,
-                    Response.center_hours.appointment_interval
-                  )
-                ) {
-                  Response.therapist_slots[therapistindex].available_times.push(
-                    {
-                      start_time: this._formatDate(unavailabletimes.end_time),
-                      end_time: this._formatDate(
-                        Response.therapist_slots[therapistindex]
-                          .available_times[
-                          Response.therapist_slots[therapistindex]
-                            .available_times.length - 1
-                        ].end_time
-                      )
-                    }
-                  );
-                  Response.therapist_slots[therapistindex].available_times[
-                    Response.therapist_slots[therapistindex].available_times
-                      .length - 2
-                  ].end_time = this._subAppointmentInterval(
-                    unavailabletimes.start_time,
-                    Response.center_hours.appointment_interval
-                  );
-                } else {
-                  Response.therapist_slots[therapistindex].available_times[
-                    Response.therapist_slots[therapistindex].available_times
-                      .length - 1
-                  ].start_time = this._formatDate(unavailabletimes.end_time);
-                  Response.therapist_slots[therapistindex].available_times[
-                    Response.therapist_slots[therapistindex].available_times
-                      .length - 2
-                  ].end_time = this._subAppointmentInterval(
-                    unavailabletimes.start_time,
-                    Response.center_hours.appointment_interval
-                  );
-                }
-              } else {
-                Response.therapist_slots[therapistindex].available_times = [
-                  {
-                    start_time: this._formatDate(
-                      Response.therapist_slots[therapistindex].schedule[0]
-                        .start_time
-                    ),
-                    end_time: this._formatDate(
-                      Response.therapist_slots[therapistindex].schedule[0]
-                        .end_time
-                    )
-                  }
-                ];
-                Response.therapist_slots[therapistindex].available_times.push({
-                  start_time: this._formatDate(
-                    Response.therapist_slots[therapistindex].schedule[0]
-                      .start_time
-                  ),
-                  end_time: this._formatDate(
-                    Response.therapist_slots[therapistindex].schedule[0]
-                      .end_time
-                  )
-                });
-                Response.therapist_slots[
-                  therapistindex
-                ].available_times[0].end_time = this._subAppointmentInterval(
-                  unavailabletimes.start_time,
-                  Response.center_hours.appointment_interval
-                );
-                Response.therapist_slots[
-                  therapistindex
-                ].available_times[1].start_time = this._formatDate(
-                  unavailabletimes.end_time
-                );
-                Response.therapist_slots[
-                  therapistindex
-                ].available_times[1].end_time = this._subAppointmentInterval(
-                  Response.therapist_slots[therapistindex].schedule[0].end_time,
-                  Response.center_hours.appointment_interval
-                );
-              }
-            });
-          } else {
-          }
-        } else {
-          Response.therapist_slots[therapistindex].available_times =
-            Response.therapist_slots[therapistindex].schedule;
+  /**
+   * Split into time chunks each given minutes
+   *
+   * @param {String start
+   * @param {String} end
+   * @param {Number} step
+   */
+  _intervalChunks(start, end, step) {
+    start = Moment(start);
+    end = Moment(end);
+    const range = Moment.range(start, end);
+    return _.map(Array.from(range.by("minutes", { step })), time => {
+      return time.format("YYYY-MM-DDTHH:mm:ss");
+    });
+  }
 
-          Response.therapist_slots[
-            therapistindex
-          ].available_times[0].end_time = this._subAppointmentInterval(
-            Response.therapist_slots[therapistindex].available_times[0]
-              .end_time,
-            Response.center_hours.appointment_interval
-          );
+  _therapistAvailableSchedule(therapistSlots, appointmentInterval) {
+    const therapists = [];
+    for (const therapistSlot of therapistSlots) {
+      const therapist = {
+        id: therapistSlot.Id,
+        available_times: []
+      };
+
+      if (therapistSlot.unavailable_times.length) {
+        for (const unavailableTime of therapistSlot.unavailable_times) {
+          if (therapist.available_times.length) {
+            if (
+              _.last(therapist.available_times).start_time <
+              this._subAppointmentInterval(
+                unavailableTime.start_time,
+                appointmentInterval
+              )
+            ) {
+              therapist.available_times.push({
+                start_time: this._formatDate(unavailableTime.end_time),
+                end_time: this._formatDate(
+                  therapist.available_times[
+                    therapist.available_times.length - 1
+                  ].end_time
+                )
+              });
+              therapist.available_times[
+                therapist.available_times.length - 2
+              ].end_time = this._subAppointmentInterval(
+                unavailableTime.start_time,
+                appointmentInterval
+              );
+            } else {
+              therapist.available_times[
+                therapist.available_times.length - 1
+              ].start_time = this._formatDate(unavailableTime.end_time);
+
+              therapist.available_times[
+                therapist.available_times.length - 2
+              ].end_time = this._subAppointmentInterval(
+                unavailableTime.start_time,
+                appointmentInterval
+              );
+            }
+          } else {
+            therapist.available_times.push({
+              start_time: this._formatDate(
+                therapistSlot.schedule[0].start_time
+              ),
+              end_time: this._subAppointmentInterval(
+                unavailableTime.start_time,
+                appointmentInterval
+              )
+            });
+            therapist.available_times.push({
+              start_time: this._formatDate(unavailableTime.end_time),
+              end_time: this._subAppointmentInterval(
+                therapistSlot.schedule[0].end_time,
+                appointmentInterval
+              )
+            });
+          }
         }
-      });
-      return Response;
+      } else {
+        therapist.available_times.push({
+          start_time: therapistSlot.schedule[0].start_time,
+          end_time: this._subAppointmentInterval(
+            therapistSlot.schedule[0].end_time,
+            appointmentInterval
+          )
+        });
+      }
+
+      therapists.push(therapist);
     }
+
+    return therapists;
   }
 
   _subAppointmentInterval(endTime, apptInterval) {
     var newEndDateTime = new Date(endTime);
     newEndDateTime.setMinutes(newEndDateTime.getMinutes() - apptInterval);
-    return newEndDateTime.toString("yyyy-MM-dd HH:mm:ss");
+    return Moment(newEndDateTime).format("YYYY-MM-DDTHH:mm:ss");
   }
   _formatDate(DateTime) {
     var newEndDateTime = new Date(DateTime);
-    return newEndDateTime.toString("yyyy-MM-dd HH:mm:ss");
+    return Moment(newEndDateTime).format("YYYY-MM-DDTHH:mm:ss");
   }
 }
 

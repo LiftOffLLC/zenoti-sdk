@@ -65,6 +65,20 @@ client.bookings.confirmBooking(bookingID, notes) // config booking slot
 client.services
   .fetch({ centerID: "c07c82cc-a5f9-4d9d-ad64-d89a3acfe3aa" }) // fetch sevices by center or location id
 
+
+// get therapist available slots
+client.employees
+  .getAvailabilities({
+    centerID: "c07c82cc-a5f9-4d9d-ad64-d89a3acfe3aa",
+    serviceID: "3199d02a-165a-40a1-b601-690c261c1a81",
+    userID: "d4a1fe49-c107-4456-bb1e-25167d68d8c8",
+    date: "2020-03-27 00:00:00"
+  })
+  .then(data => {
+    console.log("availabilities", JSON.stringify(data, null, 4));
+  })
+  .catch(err => console.log("err", err));
+
 ```
 ** Note : This section needs to be updated as adding more features.
 
