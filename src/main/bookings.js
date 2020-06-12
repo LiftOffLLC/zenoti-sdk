@@ -11,7 +11,7 @@ class Bookings extends Rest {
     userID,
     therapistID,
     isOnlyCatalogEmployees,
-    date
+    date,
   }) {
     const data = {
       center_id: centerID,
@@ -23,13 +23,13 @@ class Bookings extends Rest {
           items: [
             {
               item: {
-                id: serviceID
+                id: serviceID,
               },
-              therapist: { id: therapistID }
-            }
-          ]
-        }
-      ]
+              therapist: { id: therapistID },
+            },
+          ],
+        },
+      ],
     };
     return await this.post("/v1/bookings", {}, data);
   }
@@ -61,6 +61,10 @@ class Bookings extends Rest {
       {},
       { notes }
     );
+  }
+
+  async cancelBooking(invoiceId, comments) {
+    return await this.put(`/v1/invoices/${invoiceId}/cancel`, {}, { comments });
   }
 }
 
