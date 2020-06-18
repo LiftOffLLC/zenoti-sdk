@@ -25,7 +25,7 @@ class Rest {
     if (!_.includes(["API_KEY", "ACCESS_TOKEN"], config.authStrategy)) {
       // var error = new Error("Unexpected input");
       throw Boom.boomify(new Error("Invalid auth strategy"), {
-        statusCode: 400
+        statusCode: 400,
       });
       // throw new Boom("Invalid auth strategy", { statusCode: 400 });
     }
@@ -43,11 +43,11 @@ class Rest {
       baseURL: config.baseURL,
       headers: {
         Accept: "application/json; charset=UTF-8",
-        "Content-Type": "application/json"
+        "Content-Type": "application/json",
       },
-      validateStatus: function(status) {
+      validateStatus: function (status) {
         return status == 200;
-      }
+      },
     };
 
     /** initialize the axios client */
@@ -118,7 +118,7 @@ class Rest {
       url,
       method,
       params,
-      headers: this.getAuthorizationHeader()
+      headers: this.getAuthorizationHeader(),
     };
 
     /** add body data if request is POST, PUT, DELETE, PATCH */
@@ -129,7 +129,7 @@ class Rest {
     Logger.info(`@liftoffllc/zenoti - request`, {
       url,
       params,
-      data
+      data,
     });
 
     try {
@@ -138,7 +138,13 @@ class Rest {
       /** zenoti can send error though its status 200 */
       if (response.data.Error) {
         throw Boom.boomify(new Error(response.data.Error.Message), {
-          statusCode: response.data.Error.StatusCode
+          statusCode: response.data.Error.StatusCode,
+        });
+      }
+
+      if (response.data.error) {
+        throw Boom.boomify(new Error(response.data.error.message), {
+          statusCode: response.data.error.code,
         });
       }
 
@@ -150,7 +156,7 @@ class Rest {
         throw Boom.boomify(
           new Error(error.response.data.Message || error.response.data.message),
           {
-            statusCode: error.response.data.code || error.response.status
+            statusCode: error.response.data.code || error.response.status,
           }
         );
       }
