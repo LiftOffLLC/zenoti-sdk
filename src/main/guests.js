@@ -43,23 +43,6 @@ class Guests extends Rest {
       `/v1/guests/${guestId}/accounts?center_id=${centerId}`
     );
   }
-
-  /**
-   *
-   * @param {String} param0.cardId Zenoti card account uuid
-   * @param {String} param0.invoiceId Booking invoice uuid
-   * @param {String} param0.centerId Location/center uuid
-   */
-  async payByCard({ cardId, centerId, invoiceId }) {
-    return await this.post(
-      `/v1/invoices/${invoiceId}/online_payments`,
-      {},
-      {
-        account_id: cardId,
-        center_id: centerId,
-      }
-    );
-  }
 }
 
 module.exports = Guests;

@@ -4,6 +4,8 @@ const Bookings = require("./bookings");
 const Guests = require("./guests");
 const Services = require("./services");
 const Employees = require("./employees");
+const Products = require("./products");
+const Invoices = require("./invoices");
 
 class ZenotiClient {
   constructor(config) {
@@ -13,6 +15,8 @@ class ZenotiClient {
     this.guests = new Guests(this.config);
     this.services = new Services(this.config);
     this.employees = new Employees(this.config);
+    this.products = new Products(this.config);
+    this.invoices = new Invoices(this.config);
   }
 }
 
