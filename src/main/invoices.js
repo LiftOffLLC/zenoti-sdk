@@ -1,7 +1,7 @@
 const Rest = require("./helper/rest");
 
 class Invoices extends Rest {
-  async getInvoice({ invoiceId }) {
+  async fetch({ invoiceId }) {
     return await this.get(
       `/v1/invoices/${invoiceId}?expand=InvoiceItems&expand=Transactions`
     );
