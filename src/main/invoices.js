@@ -23,7 +23,8 @@ class Invoices extends Rest {
       {},
       {
         comments,
-      }
+      },
+      true // forceAuthToken
     );
   }
 
@@ -41,6 +42,28 @@ class Invoices extends Rest {
         account_id: cardId,
         center_id: centerId,
       }
+    );
+  }
+
+  async insertCustomPayment({
+    invoiceId,
+    amount,
+    tipAmount = 0,
+    cashRegisterId,
+    customPaymentId,
+    notes = "",
+  }) {
+    return await this.post(
+      `/v1/invoices/${invoiceId}/payment/custom`,
+      {},
+      {
+        amount,
+        tip_amount: tipAmount,
+        cash_register_id: cashRegisterId,
+        custom_payment_id: customPaymentId,
+        additional_data: notes,
+      },
+      true // forceAuthToken
     );
   }
 }
