@@ -1,4 +1,5 @@
 const _ = require("lodash");
+const moment = require("moment");
 const axios = require("axios");
 const QueryString = require("querystring");
 const Logger = require("./logger");
@@ -27,17 +28,31 @@ class Rest {
       throw Boom.boomify(new Error("Invalid auth strategy"), {
         statusCode: 400,
       });
-      // throw new Boom("Invalid auth strategy", { statusCode: 400 });
     }
 
     /** check if starategy api key and empty */
     if (config.authStrategy === "API_KEY" && config.apikey.length === 0) {
-      throw new Boom("Must provide an api key");
+      throw Boom.boomify(new Error("Must provide an api key"), {
+        statusCode: 400,
+      });
+    } else if (
+      config.authStrategy === "ACCESS_TOKEN" &&
+      (!config.username || !config.password || !config.clientid)
+    ) {
+      throw Boom.boomify(
+        new Error("Username or password or client is missing"),
+        {
+          statusCode: 400,
+        }
+      );
     }
 
     // set api key
     this.apikey = config.apikey;
     this.authStrategy = config.authStrategy;
+    this.clientid = config.clientid;
+    this.username = config.username;
+    this.password = config.password;
     this.baseURL = config.baseURL;
     this.restOptions = {
       baseURL: config.baseURL,
@@ -58,10 +73,44 @@ class Rest {
    * Get authorization header
    * It returns the authorization header based on auth strategy
    * @note Now only api key auth strategy is implemented
-   * @returns {object} {Authorization:'apikey ***'}
+   * @returns {object} 
+   * {Authorization:'apikey ***'} 
+   * or 
+   * {
+        Authorization: `Bearer ${accessToken}`,
+        application_name: "docs_app",
+        application_version: "1.0.0",
+      }
    */
-  getAuthorizationHeader() {
+  async getAuthorizationHeader(forceAuthToken) {
+    if (true === forceAuthToken || this.authStrategy === "ACCESS_TOKEN") {
+      const accessToken = await this.getToken();
+      return {
+        Authorization: `Bearer ${accessToken}`,
+        application_name: "docs_app",
+        application_version: "1.0.0",
+      };
+    }
     return { Authorization: `apikey ${this.apikey}` };
+  }
+
+  async getToken() {
+    if (this.accessTokenExpiresAt && moment.utc() < this.accessTokenExpiresAt) {
+      return this.accessToken;
+    }
+
+    const { access_token } = await this.client
+      .request({
+        url: "/Token",
+        method: "post",
+        params: {},
+        data: `username=${this.username}&password=${this.password}&grant_type=password&clientid=${this.clientid}`,
+      })
+      .then((response) => response.data);
+
+    this.accessToken = access_token;
+    this.accessTokenExpiresAt = moment.utc().add(18000, "second"); // For 5 hours
+    return this.accessToken;
   }
 
   /**
@@ -69,8 +118,8 @@ class Rest {
    * @param {string} url
    * @param {object} params
    */
-  async get(url, params = {}) {
-    return this.request("get", url, params);
+  async get(url, params = {}, forceAuthToken = false) {
+    return this.request("get", url, params, forceAuthToken);
   }
 
   /**
@@ -79,8 +128,8 @@ class Rest {
    * @param {object} queryParams
    * @param {object} body
    */
-  async post(url, queryParams, body) {
-    return this.request("post", url, queryParams, body);
+  async post(url, queryParams, body, forceAuthToken = false) {
+    return this.request("post", url, queryParams, body, forceAuthToken);
   }
 
   /**
@@ -99,8 +148,8 @@ class Rest {
    * @param {object} queryParams
    * @param {object} body
    */
-  async delete(url, queryParams, body) {
-    return this.request("delete", url, queryParams, body);
+  async delete(url, queryParams, body, forceAuthToken = false) {
+    return this.request("delete", url, queryParams, body, forceAuthToken);
   }
 
   /**
@@ -110,7 +159,7 @@ class Rest {
    * @param {object} params - the params to use in query string with request
    * @param {object} data - the data to use in POST, PUT and DELETE
    */
-  async request(method, url, params = {}, data = {}, retry = true) {
+  async request(method, url, params = {}, data = {}, forceAuthToken = false) {
     const { client } = this;
 
     /** request config */
@@ -118,7 +167,7 @@ class Rest {
       url,
       method,
       params,
-      headers: this.getAuthorizationHeader(),
+      headers: await this.getAuthorizationHeader(forceAuthToken),
     };
 
     /** add body data if request is POST, PUT, DELETE, PATCH */
