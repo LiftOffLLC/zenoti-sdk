@@ -66,6 +66,17 @@ class Invoices extends Rest {
       true // forceAuthToken
     );
   }
+
+  async applyCampaignDiscount({ invoiceId, offerCode, centerId }) {
+    return await this.post(
+      `/v1/invoices/${invoiceId}/campaign_discount/apply`,
+      {},
+      {
+        offer_code: offerCode,
+        center_id: centerId,
+      }
+    );
+  }
 }
 
 module.exports = Invoices;
