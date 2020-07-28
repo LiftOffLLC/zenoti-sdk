@@ -77,6 +77,10 @@ class Invoices extends Rest {
       }
     );
   }
+
+  async close({ invoiceId }) {
+    return await this.post(`/v1/invoices/${invoiceId}/close`, {}, {});
+  }
 }
 
 module.exports = Invoices;

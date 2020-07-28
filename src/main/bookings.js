@@ -1,4 +1,5 @@
 const Rest = require("./helper/rest");
+const _ = require("lodash");
 
 class Bookings extends Rest {
   /**
@@ -38,8 +39,11 @@ class Bookings extends Rest {
    * @name getSlots
    * @param {String} bookingId
    */
-  async getSlots(bookingId) {
-    return await this.get(`/v1/bookings/${bookingId}/slots`);
+  async getSlots(bookingId, options) {
+    const futureDays = _.get(options, "query.futureDays", false);
+    return await this.get(
+      `/v1/bookings/${bookingId}/slots?check_future_day_availability=${futureDays}`
+    );
   }
 
   /**
