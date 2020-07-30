@@ -70,6 +70,20 @@ class Bookings extends Rest {
   async cancelBooking(invoiceId, comments) {
     return await this.put(`/v1/invoices/${invoiceId}/cancel`, {}, { comments });
   }
+
+  /**
+   * Mark appointment as no-show
+   *
+   * @param {String} appointmentGroupId uuid of zenoti reference
+   * @param {String} comments some notes ( required )
+   */
+  async noShow({ appointmentGroupId, comments }) {
+    return await this.put(
+      `/v1/appointments/${appointmentGroupId}/no_show`,
+      {},
+      { comments }
+    );
+  }
 }
 
 module.exports = Bookings;
