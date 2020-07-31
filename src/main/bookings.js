@@ -84,6 +84,15 @@ class Bookings extends Rest {
       { comments }
     );
   }
+
+  /**
+   * Get appointment by id
+   *
+   * @param {String} id Uuid
+   */
+  async getAppointment(id) {
+    return await this.get(`/v1/appointments/${id}`, {}, true);
+  }
 }
 
 module.exports = Bookings;
