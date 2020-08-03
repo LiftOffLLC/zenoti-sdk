@@ -119,7 +119,7 @@ class Rest {
    * @param {object} params
    */
   async get(url, params = {}, forceAuthToken = false) {
-    return this.request("get", url, params, forceAuthToken);
+    return this.request("get", url, params, {}, forceAuthToken);
   }
 
   /**
