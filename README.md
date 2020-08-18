@@ -2,6 +2,7 @@
 NodeJS wrapper around Zenoti APIs
 
 ## Installation
+1. [Using PAT](https://docs.github.com/en/github/authenticating-to-github/creating-a-personal-access-token)
 ```shell
 > yarn add git+https://token:x-oauth-basic@github.com/LiftOffLLC/zenoti-sdk.git#master
 
@@ -10,8 +11,17 @@ or
 > npm install --save git+https://token:x-oauth-basic@github.com/LiftOffLLC/zenoti-sdk.git#master
 ```
 
+2. [Using SSH](https://docs.github.com/en/github/authenticating-to-github/adding-a-new-ssh-key-to-your-github-account)
+```shell
+> yarn add git+ssh://git@github.com:LiftOffLLC/zenoti-sdk.git#master
+
+or
+
+> npm install git+ssh://git@github.com:LiftOffLLC/zenoti-sdk.git#master
+```
+
 ## Enviroment Setup
-In your .env file add the below environment variables
+In your .env file add the below environment variables (check .env.example)
 ```javascript
 ZENOTI_AUTH_STRATEGY=API_KEY
 ZENOTI_API_KEY=********************************
