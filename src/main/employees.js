@@ -76,6 +76,8 @@ class Employees extends Rest {
       therapist_slots: therapistSlots
     } = await this.post("/v1/appointments/therapist_availability", {}, params);
     
+    const startDateTimeRounded = this._round(startDateTime, 'ceil', centerHours.appointment_interval);
+    const endDateTimeRounded = this._round(endDateTime, 'floor', centerHours.appointment_interval);
     const therapistIdsSet = new Set(therapistIds);
     const therapistFilteredSlots = _.filter(therapistSlots, therapistSlot => therapistIdsSet.has(therapistSlot.Id));
     
@@ -84,7 +86,7 @@ class Employees extends Rest {
       centerHours.appointment_interval
     );
 
-    const inputRange = Moment.range(Moment.tz(startDateTime, timezone), Moment.tz(endDateTime, timezone));
+    const inputRange = Moment.range(Moment.tz(startDateTimeRounded, timezone), Moment.tz(endDateTimeRounded, timezone));
     _.map(therapists, therapist => {
       const available_times_filtered = [];
       for (let i = 0; i < therapist.available_times.length; i++) {
@@ -238,6 +240,11 @@ class Employees extends Rest {
   _formatDate(DateTime) {
     var newEndDateTime = new Date(DateTime);
     return Moment(newEndDateTime).format("YYYY-MM-DDTHH:mm:ss");
+  }
+  _round(date, method, duration) {
+    const momentDate = Moment(date);
+    const momentDuration = Moment.duration(duration, 'minutes');
+    return Moment(Math[method]((+momentDate) / (+momentDuration)) * (+momentDuration)).toISOString(); 
   }
 }
 
