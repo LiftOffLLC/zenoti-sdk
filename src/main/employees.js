@@ -78,8 +78,12 @@ class Employees extends Rest {
     
     const startDateTimeRounded = this._round(startDateTime, 'ceil', centerHours.appointment_interval);
     const endDateTimeRounded = this._round(endDateTime, 'floor', centerHours.appointment_interval);
-    const therapistIdsSet = new Set(therapistIds);
-    const therapistFilteredSlots = _.filter(therapistSlots, therapistSlot => therapistIdsSet.has(therapistSlot.Id));
+    
+    let therapistFilteredSlots = therapistSlots;
+    if (therapistIds) {
+      const therapistIdsSet = new Set(therapistIds);
+      therapistFilteredSlots = _.filter(therapistFilteredSlots, therapistSlot => therapistIdsSet.has(therapistSlot.Id));
+    }
     
     const therapists = this._therapistAvailableSchedule(
       therapistFilteredSlots,
