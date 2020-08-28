@@ -17,6 +17,10 @@ class Guests extends Rest {
     return await this.post("/v1/guests", {}, params);
   }
 
+  async updateGuest(guestId, params) {
+    return await this.put(`/v1/guests/${guestId}`, {}, params);
+  }
+
   /**
    *
    * @param {String} param0.guestId Guest user uuid
