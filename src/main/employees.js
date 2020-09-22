@@ -2,6 +2,7 @@ const Rest = require("./helper/rest");
 const _ = require("lodash");
 const { extendMoment } = require("moment-range");
 const Moment = extendMoment(require('moment-timezone'));
+const dateTimeFormat = 'YYYY-MM-DDTHH:mm:ss';
 
 class Employees extends Rest {
   /**
@@ -57,9 +58,8 @@ class Employees extends Rest {
     };
   }
 
-  async getAvailabilitiesFiltered({ centerID, serviceID, userID, startDateTime, 
-    endDateTime, therapistIds, timezone = 'America/Los_Angeles' }) {
-    const CenterDate = Moment.tz(startDateTime, timezone).format('YYYY-MM-DD');
+  async getAvailabilitiesFiltered({ centerID, serviceID, therapistIds, userID, startDateTime, endDateTime, appointmentDuration }) {
+    const CenterDate = Moment(startDateTime).format('YYYY-MM-DD');
     const params = {
       CenterId: centerID,
       CenterDate,
@@ -75,42 +75,38 @@ class Employees extends Rest {
       center_hours: centerHours,
       therapist_slots: therapistSlots
     } = await this.post("/v1/appointments/therapist_availability", {}, params);
-    
-    const startDateTimeRounded = this._round(startDateTime, 'ceil', centerHours.appointment_interval);
-    const endDateTimeRounded = this._round(endDateTime, 'floor', centerHours.appointment_interval);
-    
+
     let therapistFilteredSlots = therapistSlots;
     if (therapistIds) {
       const therapistIdsSet = new Set(therapistIds);
       therapistFilteredSlots = _.filter(therapistFilteredSlots, therapistSlot => therapistIdsSet.has(therapistSlot.Id));
     }
     
-    const therapists = this._therapistAvailableSchedule(
+    const therapists = this._therapistGetAvailableRanges(
       therapistFilteredSlots,
-      centerHours.appointment_interval
+      appointmentDuration
     );
 
-    const inputRange = Moment.range(Moment.tz(startDateTimeRounded, timezone), Moment.tz(endDateTimeRounded, timezone));
+    const startDateTimeRounded = this._round(startDateTime, 'ceil', centerHours.appointment_interval);
+    const endDateTimeRounded = this._round(endDateTime, 'floor', centerHours.appointment_interval);
+    const inputRange = Moment.range(Moment(startDateTimeRounded), Moment(endDateTimeRounded));
     _.map(therapists, therapist => {
       const available_times_filtered = [];
-      for (let i = 0; i < therapist.available_times.length; i++) {
-        const time = therapist.available_times[i];
-        let start_time = Moment.tz(time.start_time, timezone);
-        let end_time = Moment.tz(time.end_time, timezone);
-        const currentRange = Moment.range(Moment(start_time), Moment(end_time));
+      const availableRanges = therapist.available_times;
+      availableRanges.forEach(currentRange => {
         const intersection = inputRange.intersect(currentRange);
         if (intersection) {
           available_times_filtered.push({
-            start_time: intersection.start.toISOString(),
-            end_time: intersection.end.toISOString(),
+            start_time: intersection.start.format(dateTimeFormat),
+            end_time: intersection.end.format(dateTimeFormat),
           });
         }
-      }
+      });
 
       therapist.slots = _.reduce(
         available_times_filtered,
         (slots, time) => {
-          const chunks = this._intervalChunksISO(
+          const chunks = this._intervalChunks(
             time.start_time,
             time.end_time,
             centerHours.appointment_interval,
@@ -144,16 +140,7 @@ class Employees extends Rest {
     end = Moment(end);
     const range = Moment.range(start, end);
     return _.map(Array.from(range.by("minutes", { step })), time => {
-      return time.format("YYYY-MM-DDTHH:mm:ss");
-    });
-  }
-
-  _intervalChunksISO(start, end, step) {
-    start = Moment(start);
-    end = Moment(end);
-    const range = Moment.range(start, end);
-    return _.map(Array.from(range.by("minutes", { step })), time => {
-      return time.toISOString();
+      return time.format(dateTimeFormat);
     });
   }
 
@@ -236,19 +223,56 @@ class Employees extends Rest {
     return therapists;
   }
 
+  _therapistGetAvailableRanges(therapistSlots, appointmentDuration) {
+    const therapists = [];
+    therapistSlots.forEach(therapistSlot => {
+      const schedule = therapistSlot.schedule[0];
+      let availableRanges = [ Moment.range(schedule.start_time, schedule.end_time) ];
+      const unavailableRanges = therapistSlot.unavailable_times.map(unavailableRange => Moment.range(unavailableRange.start_time, unavailableRange.end_time));
+      let tmpAvailableRanges;
+      unavailableRanges.forEach(unavailableRange => {
+        tmpAvailableRanges = [];
+        let overlapFound = false;
+        availableRanges.forEach(availableRange => {
+          if (!overlapFound && availableRange.overlaps(unavailableRange)) {
+            overlapFound = true;
+            const subtraction = availableRange.subtract(unavailableRange);
+            subtraction.forEach(range => {
+              if (range.duration('minutes') >= appointmentDuration) {
+                tmpAvailableRanges.push(range);
+              }
+            });
+          } else {
+            tmpAvailableRanges.push(availableRange);
+          }
+        });
+        availableRanges = tmpAvailableRanges;
+      });
+      availableRanges.forEach(availableRange => {
+        availableRange.end.subtract(appointmentDuration, 'minutes');
+      });
+      const therapist = {
+        id: therapistSlot.Id,
+        available_times: availableRanges,
+      };
+      therapists.push(therapist);
+    });
+    return therapists;
+  }
+
   _subAppointmentInterval(endTime, apptInterval) {
     var newEndDateTime = new Date(endTime);
     newEndDateTime.setMinutes(newEndDateTime.getMinutes() - apptInterval);
-    return Moment(newEndDateTime).format("YYYY-MM-DDTHH:mm:ss");
+    return Moment(newEndDateTime).format(dateTimeFormat);
   }
   _formatDate(DateTime) {
     var newEndDateTime = new Date(DateTime);
-    return Moment(newEndDateTime).format("YYYY-MM-DDTHH:mm:ss");
+    return Moment(newEndDateTime).format(dateTimeFormat);
   }
   _round(date, method, duration) {
     const momentDate = Moment(date);
     const momentDuration = Moment.duration(duration, 'minutes');
-    return Moment(Math[method]((+momentDate) / (+momentDuration)) * (+momentDuration)).toISOString(); 
+    return Moment(Math[method]((+momentDate) / (+momentDuration)) * (+momentDuration)).format(dateTimeFormat); 
   }
 }
 

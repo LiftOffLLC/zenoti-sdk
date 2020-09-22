@@ -21,10 +21,11 @@ or
 ```
 
 ## Enviroment Setup
-In your .env file add the below environment variables (check .env.example)
+In your .env file add the below environment variables (check .example.env)
 ```javascript
-ZENOTI_AUTH_STRATEGY=API_KEY
-ZENOTI_API_KEY=********************************
+ZENOTI_AUTH_STRATEGY = API_KEY
+ZENOTI_API_KEY = ********************************
+...
 ```
 
 ## Sample Code
