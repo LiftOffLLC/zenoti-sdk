@@ -85,6 +85,10 @@ class Bookings extends Rest {
     );
   }
 
+  async checkIn(appointmentGroupId) {
+    return await this.put(`/v1/appointments/${appointmentGroupId}/check_in`);
+  }
+
   /**
    * Get appointment by id
    *
