@@ -1,4 +1,4 @@
-const Rest = require("./helper/rest");
+const Rest = require('./helper/rest');
 
 class Invoices extends Rest {
   async fetch({ invoiceId }) {
@@ -51,7 +51,7 @@ class Invoices extends Rest {
     tipAmount = 0,
     cashRegisterId,
     customPaymentId,
-    notes = "",
+    notes = '',
   }) {
     return await this.post(
       `/v1/invoices/${invoiceId}/payment/custom`,
@@ -79,7 +79,7 @@ class Invoices extends Rest {
   }
 
   async close({ invoiceId }) {
-    return await this.post(`/v1/invoices/${invoiceId}/close`, {}, {});
+    return await this.post(`/v1/invoices/${invoiceId}/close`, {}, {}, true);
   }
 }
 
