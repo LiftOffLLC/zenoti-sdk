@@ -8,6 +8,10 @@ class Centers extends Rest {
   async therapists({ centerId }) {
     return await this.get(`/v1/centers/${centerId}/therapists`);
   }
+
+  async memberships({ centerId }) {
+    return await this.get(`/v1/centers/${centerId}/memberships`);
+  }
 }
 
 module.exports = Centers;
