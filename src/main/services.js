@@ -3,7 +3,7 @@ const Rest = require("./helper/rest");
 class Services extends Rest {
   /**
    * Get services
-   * Retrive services of specigic center
+   * Retrieve services of specific center
    *
    * @param {String} centerID
    */
