@@ -7,6 +7,7 @@ const Employees = require("./employees");
 const Products = require("./products");
 const Memberships = require("./memberships");
 const Invoices = require("./invoices");
+const GiftCards = require("./gift-cards");
 
 class ZenotiClient {
   constructor(config) {
@@ -19,6 +20,7 @@ class ZenotiClient {
     this.products = new Products(this.config);
     this.memberships = new Memberships(this.config);
     this.invoices = new Invoices(this.config);
+    this.giftCards = new GiftCards(this.config);
   }
 }
 
