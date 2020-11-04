@@ -7,7 +7,8 @@ class GiftCards extends Rest {
     templateId,
     recipientName,
     recipientEmail,
-    message }) {
+    message = '',
+  }) {
     const data = {
       center_id: centerId,
       guest_id: guestId,
