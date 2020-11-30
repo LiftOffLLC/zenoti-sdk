@@ -1,7 +1,7 @@
 const Rest = require("./helper/rest");
 const _ = require("lodash");
 const { extendMoment } = require("moment-range");
-const Moment = extendMoment(require('moment-timezone'));
+const Moment = extendMoment(require('moment'));
 const dateTimeFormat = 'YYYY-MM-DDTHH:mm:ss';
 
 class Employees extends Rest {
