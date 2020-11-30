@@ -63,7 +63,7 @@ class Bookings extends Rest {
     return await this.post(
       `/v1/bookings/${bookingId}/slots/confirm`,
       {},
-      { notes }, 
+      { notes },
       true
     );
   }
