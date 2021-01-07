@@ -58,40 +58,6 @@ class Employees extends Rest {
     };
   }
 
-  async getScheduleFiltered({
-    centerID,
-    serviceID,
-    therapistIds,
-    userID,
-    startDateTime,
-  }) {
-    const CenterDate = Moment(startDateTime).format('YYYY-MM-DD');
-    const params = {
-      CenterId: centerID,
-      CenterDate,
-      SlotBookings: [
-        {
-          GuestId: userID,
-          Services: [{ Service: { Id: serviceID } }],
-        },
-      ],
-    };
-
-    const {
-      center_hours: centerHours,
-      therapist_slots: therapistSlots,
-    } = await this.post('/v1/appointments/therapist_availability', {}, params);
-
-    let therapistFilteredSlots = therapistSlots;
-    if (therapistIds) {
-      const therapistIdsSet = new Set(therapistIds);
-      therapistFilteredSlots = _.filter(therapistFilteredSlots, therapistSlot =>
-        therapistIdsSet.has(therapistSlot.Id),
-      );
-    }
-    return therapistFilteredSlots;
-  }
-
   async getAvailabilitiesFiltered({ centerID, serviceID, therapistIds, userID, startDateTime, endDateTime, appointmentDuration }) {
     const CenterDate = Moment(startDateTime).format('YYYY-MM-DD');
     const params = {
@@ -110,19 +76,18 @@ class Employees extends Rest {
       therapist_slots: therapistSlots
     } = await this.post("/v1/appointments/therapist_availability", {}, params);
 
-
     let therapistFilteredSlots = therapistSlots;
     if (therapistIds) {
       const therapistIdsSet = new Set(therapistIds);
       therapistFilteredSlots = _.filter(therapistFilteredSlots, therapistSlot => therapistIdsSet.has(therapistSlot.Id));
     }
-    return therapistFilteredSlots;
+    
     const therapists = this._therapistGetAvailableRanges(
       therapistFilteredSlots,
       centerHours, 
       appointmentDuration
     );
-    
+
     const startDateTimeRounded = this._round(startDateTime, 'ceil', centerHours.appointment_interval);
     const endDateTimeRounded = this._round(endDateTime, 'floor', centerHours.appointment_interval);
     const inputRange = Moment.range(Moment(startDateTimeRounded), Moment(endDateTimeRounded));
