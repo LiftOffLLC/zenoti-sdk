@@ -13,6 +13,8 @@ class Bookings extends Rest {
     therapistID,
     isOnlyCatalogEmployees,
     date,
+    invoice_id =null,
+    invoice_item_id = null,
   }) {
     const data = {
       center_id: centerID,
@@ -32,6 +34,12 @@ class Bookings extends Rest {
         },
       ],
     };
+    if(invoice_id){
+      data.guests[0].invoice_id = invoice_id;
+    }
+    if (invoice_item_id){
+      data.guests[0].items[0].invoice_item_id = invoice_item_id;
+    }
     return await this.post("/v1/bookings", {}, data);
   }
 
