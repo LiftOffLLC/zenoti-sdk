@@ -75,7 +75,7 @@ class Employees extends Rest {
       center_hours: centerHours,
       therapist_slots: therapistSlots
     } = await this.post("/v1/appointments/therapist_availability", {}, params);
-
+    
     let therapistFilteredSlots = therapistSlots;
     if (therapistIds) {
       const therapistIdsSet = new Set(therapistIds);
@@ -228,13 +228,15 @@ class Employees extends Rest {
     const therapists = [];
     therapistSlots.forEach(therapistSlot => {
       let availableRanges = [];
-      const therapistSchedule = therapistSlot.schedule[0];
-      const centerRange = Moment.range(centerHours.start_time, centerHours.end_time);
-      const therapistRange = Moment.range(therapistSchedule.start_time, therapistSchedule.end_time);
-      const intersection = centerRange.intersect(therapistRange);
-      if (intersection) {
-        availableRanges.push(intersection);
-      }
+      const therapistSchedule = therapistSlot.schedule;
+      therapistSchedule.forEach(schedule => {
+        const centerRange = Moment.range(centerHours.start_time, centerHours.end_time);
+        const therapistRange = Moment.range(schedule.start_time, schedule.end_time);
+        const intersection = centerRange.intersect(therapistRange);
+        if (intersection) {
+          availableRanges.push(intersection);
+        }
+      });
       const unavailableRanges = therapistSlot.unavailable_times.map(unavailableRange => Moment.range(unavailableRange.start_time, unavailableRange.end_time));
       let tmpAvailableRanges;
       unavailableRanges.forEach(unavailableRange => {
