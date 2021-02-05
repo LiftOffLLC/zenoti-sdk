@@ -54,8 +54,16 @@ class Guests extends Rest {
     return data;
   }
 
+  async getAppointments({ guestId, page, size }) {
+    return await this.get(
+      `/v1/guests/${guestId}/appointments?page=${page}&size=${size}`
+    );
+  }
+
   async postCustomForm({ guestId, formId, data }) {
-    const formattedData = JSON.stringify(data, (k,v)=>typeof v=="boolean"||typeof v==="number"?''+v:v);
+    const formattedData = JSON.stringify(data, (k, v) =>
+      typeof v == "boolean" || typeof v === "number" ? "" + v : v
+    );
     return await this.post(
       `/v1/guests/${guestId}/forms`,
       {},
