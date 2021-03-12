@@ -3,6 +3,7 @@ const _ = require("lodash");
 const { extendMoment } = require("moment-range");
 const Moment = extendMoment(require('moment'));
 const dateTimeFormat = 'YYYY-MM-DDTHH:mm:ss';
+const Logger = require("./helper/logger")
 
 class Employees extends Rest {
   /**
@@ -102,9 +103,9 @@ class Employees extends Rest {
       therapist_slots: therapistSlots
     } = await this.post("/v1/appointments/therapist_availability", {}, params);
     
-    console.log('srinizenoti');
-    console.dir(therapistSlots,{depth:null});
-    console.dir(centerHours,{depth:null});
+    Logger.info('srinizenoti');
+    Logger.info(JSON.stringify(therapistSlots))
+    Logger.info(JSON.stringify(centerHours));
     let therapistFilteredSlots = therapistSlots;
     if (therapistIds) {
       const therapistIdsSet = new Set(therapistIds);
@@ -151,8 +152,8 @@ class Employees extends Rest {
 
       return therapist;
     });
-    console.log("lovejeetzenoti");
-    console.dir(therapists,{depth:null});
+    Logger.info("lovejeetzenoti");
+    Logger.info(therapists);
 
     return {
       centerHours, 
