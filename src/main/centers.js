@@ -12,6 +12,12 @@ class Centers extends Rest {
   async memberships({ centerId }) {
     return await this.get(`/v1/centers/${centerId}/memberships`);
   }
+
+  async employees({ centerId }, page = 1, size = 10) {
+    return await this.get(
+      `/v1/centers/${centerId}/employees?page=${page}&size=${size}`,
+    );
+  }
 }
 
 module.exports = Centers;
