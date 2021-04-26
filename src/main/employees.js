@@ -85,7 +85,7 @@ class Employees extends Rest {
     
   }
 
-  async getAvailabilitiesFiltered({ centerID, serviceID, therapistIds, userID, startDateTime, endDateTime, appointmentDuration }) {
+  async getAvailabilitiesFiltered({ centerID, serviceID, therapistIds, userID, startDateTime, endDateTime, appointmentDuration, interval = 15 }) {
     const CenterDate = Moment(startDateTime).format('YYYY-MM-DD');
     const params = {
       CenterId: centerID,
@@ -103,9 +103,6 @@ class Employees extends Rest {
       therapist_slots: therapistSlots
     } = await this.post("/v1/appointments/therapist_availability", {}, params);
     
-    Logger.info('srinizenoti');
-    Logger.info(JSON.stringify(therapistSlots))
-    Logger.info(JSON.stringify(centerHours));
     let therapistFilteredSlots = therapistSlots;
     if (therapistIds) {
       const therapistIdsSet = new Set(therapistIds);
@@ -115,7 +112,8 @@ class Employees extends Rest {
     const therapists = this._therapistGetAvailableRanges(
       therapistFilteredSlots,
       centerHours, 
-      appointmentDuration
+      appointmentDuration,
+      interval
     );
 
     const startDateTimeRounded = this._round(startDateTime, 'ceil', centerHours.appointment_interval);
@@ -152,8 +150,6 @@ class Employees extends Rest {
 
       return therapist;
     });
-    Logger.info("lovejeetzenoti");
-    Logger.info(therapists);
 
     return {
       centerHours, 
@@ -256,7 +252,16 @@ class Employees extends Rest {
     return therapists;
   }
 
-  _therapistGetAvailableRanges(therapistSlots, centerHours, appointmentDuration) {
+  _ceilTime(dateTime,interval){
+    const minuteDiff = (Moment.utc(dateTime).minute() % interval);
+    if(!minuteDiff){
+      return minuteDiff;
+    }
+    const remainder = interval - (Moment.utc(dateTime).minute() % interval);
+    return Moment(dateTime).add(remainder,'minutes').format('YYYY-MM-DDTHH:mm:ss')
+
+  }
+  _therapistGetAvailableRanges(therapistSlots, centerHours, appointmentDuration, interval) {
     const therapists = [];
     therapistSlots.forEach(therapistSlot => {
       let availableRanges = [];
@@ -269,6 +274,11 @@ class Employees extends Rest {
           availableRanges.push(intersection);
         }
       });
+      if(interval){
+      for (const unavailableTime of therapistSlot.unavailable_times){
+          unavailableTime.start_time = this._ceilTime(unavailableTime.start_time,interval);
+          unavailableTime.end_time = this._ceilTime(unavailableTime.end_time,interval);
+      }}
       const unavailableRanges = therapistSlot.unavailable_times.map(unavailableRange => Moment.range(unavailableRange.start_time, unavailableRange.end_time));
       let tmpAvailableRanges;
       unavailableRanges.forEach(unavailableRange => {
