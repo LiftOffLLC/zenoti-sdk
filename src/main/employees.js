@@ -276,7 +276,6 @@ class Employees extends Rest {
       });
       if(interval){
       for (const unavailableTime of therapistSlot.unavailable_times){
-          unavailableTime.start_time = this._ceilTime(unavailableTime.start_time,interval);
           unavailableTime.end_time = this._ceilTime(unavailableTime.end_time,interval);
       }}
       const unavailableRanges = therapistSlot.unavailable_times.map(unavailableRange => Moment.range(unavailableRange.start_time, unavailableRange.end_time));
