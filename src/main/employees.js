@@ -1,3 +1,4 @@
+
 const Rest = require("./helper/rest");
 const _ = require("lodash");
 const { extendMoment } = require("moment-range");
@@ -85,7 +86,7 @@ class Employees extends Rest {
     
   }
 
-  async getAvailabilitiesFiltered({ centerID, serviceID, therapistIds, userID, startDateTime, endDateTime, appointmentDuration, interval = 15 }) {
+  async getAvailabilitiesFiltered({ centerID, serviceID, therapistIds, userID, startDateTime, endDateTime, appointmentDuration, interval}) {
     const CenterDate = Moment(startDateTime).format('YYYY-MM-DD');
     const params = {
       CenterId: centerID,
@@ -252,13 +253,23 @@ class Employees extends Rest {
     return therapists;
   }
 
-  _ceilTime(dateTime,interval){
-    const minuteDiff = (Moment.utc(dateTime).minute() % interval);
-    if(!minuteDiff){
-      return minuteDiff;
+  _ceilTime(dateTime,interval,format){
+    if(typeof(dateTime)==='string'){
+      dateTime = Moment(dateTime);
     }
-    const remainder = interval - (Moment.utc(dateTime).minute() % interval);
-    return Moment(dateTime).add(remainder,'minutes').format('YYYY-MM-DDTHH:mm:ss')
+    const minuteDiff = (dateTime.minutes() % interval);
+    if(!minuteDiff){
+      if(format){
+        return dateTime.format(format);
+      }
+      return dateTime;
+    }
+    const remainder = interval - minuteDiff
+    const ceiledDateTime =dateTime.add(remainder,'minutes')
+    if(format){
+      return ceiledDateTime.format(format);
+    }
+    return ceiledDateTime;
 
   }
   _therapistGetAvailableRanges(therapistSlots, centerHours, appointmentDuration, interval) {
@@ -276,8 +287,11 @@ class Employees extends Rest {
       });
       if(interval){
       for (const unavailableTime of therapistSlot.unavailable_times){
-          unavailableTime.end_time = this._ceilTime(unavailableTime.end_time,interval);
+          unavailableTime.end_time = this._ceilTime(unavailableTime.end_time,interval,'YYYY-MM-DDTHH:mm:ss');
       }}
+      for (const availableRange of availableRanges){
+        availableRange.start = this._ceilTime(availableRange.start.format('YYYY-MM-DDTHH:mm:ss'),interval);
+      };
       const unavailableRanges = therapistSlot.unavailable_times.map(unavailableRange => Moment.range(unavailableRange.start_time, unavailableRange.end_time));
       let tmpAvailableRanges;
       unavailableRanges.forEach(unavailableRange => {
