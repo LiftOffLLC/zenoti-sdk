@@ -13,7 +13,7 @@ class Bookings extends Rest {
     therapistID,
     isOnlyCatalogEmployees,
     date,
-    invoice_id =null,
+    invoice_id = null,
     invoice_item_id = null,
   }) {
     const data = {
@@ -34,10 +34,10 @@ class Bookings extends Rest {
         },
       ],
     };
-    if(invoice_id){
+    if (invoice_id) {
       data.guests[0].invoice_id = invoice_id;
     }
-    if (invoice_item_id){
+    if (invoice_item_id) {
       data.guests[0].items[0].invoice_item_id = invoice_item_id;
     }
     return await this.post("/v1/bookings", {}, data);
@@ -105,6 +105,20 @@ class Bookings extends Rest {
    */
   async getAppointment(id) {
     return await this.get(`/v1/appointments/${id}`, {}, true);
+  }
+
+  async getAppointmentsOfCenter({
+    center_id,
+    start_date,
+    end_date,
+    include_no_show_cancel = false,
+  }) {
+    return await this.get(`/v1/appointments`, {
+      center_id,
+      start_date,
+      end_date,
+      include_no_show_cancel,
+    });
   }
 }
 
