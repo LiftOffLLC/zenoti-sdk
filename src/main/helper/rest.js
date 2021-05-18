@@ -56,6 +56,7 @@ class Rest {
     this.baseURL = config.baseURL;
     this.restOptions = {
       baseURL: config.baseURL,
+      timeout: 15000,
       headers: {
         Accept: "application/json; charset=UTF-8",
         "Content-Type": "application/json",
