@@ -86,6 +86,15 @@ class Employees extends Rest {
     
   }
 
+
+  async getBlockOutTimes({ centerId, date }) {
+    const blockedOutTimes = await this.get(
+      `v1/centers/${centerId}/blockouttimes?start_date=${date}&end_date=${date}`,
+    );
+    return blockedOutTimes;
+  }
+
+
   async getAvailabilitiesFiltered({ centerID, serviceID, therapistIds, userID, startDateTime, endDateTime, appointmentDuration, interval}) {
     const CenterDate = Moment(startDateTime).format('YYYY-MM-DD');
     const params = {
