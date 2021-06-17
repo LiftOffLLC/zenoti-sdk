@@ -106,6 +106,21 @@ class Bookings extends Rest {
   async getAppointment(id) {
     return await this.get(`/v1/appointments/${id}`, {}, true);
   }
+
+  
+  async getAppointmentsOfCenter({
+    center_id,
+    start_date,
+    end_date,
+    include_no_show_cancel = false,
+  }) {
+    return await this.get(`/v1/appointments`, {
+      center_id,
+      start_date,
+      end_date,
+      include_no_show_cancel,
+    });
+  }
 }
 
 module.exports = Bookings;
