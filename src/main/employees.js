@@ -324,7 +324,7 @@ class Employees extends Rest {
       });
       availableRanges.forEach((availableRange) => {
         availableRange.end.subtract(appointmentDuration, "minutes");
-        availableRange.end.subtract(1, "minutes");
+        availableRange.end.add(1, "minutes");
       });
       const therapist = {
         id: therapistSlot.Id,
