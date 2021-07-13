@@ -1,8 +1,8 @@
 const Rest = require("./helper/rest");
 const _ = require("lodash");
 const { extendMoment } = require("moment-range");
-const Moment = extendMoment(require('moment'));
-const dateTimeFormat = 'YYYY-MM-DDTHH:mm:ss';
+const Moment = extendMoment(require("moment"));
+const dateTimeFormat = "YYYY-MM-DDTHH:mm:ss";
 
 class Employees extends Rest {
   /**
@@ -21,22 +21,20 @@ class Employees extends Rest {
       SlotBookings: [
         {
           GuestId: userID,
-          Services: [{ Service: { Id: serviceID } }]
-        }
-      ]
+          Services: [{ Service: { Id: serviceID } }],
+        },
+      ],
     };
 
-    const {
-      center_hours: centerHours,
-      therapist_slots: therapistSlots
-    } = await this.post("/v1/appointments/therapist_availability", {}, params);
+    const { center_hours: centerHours, therapist_slots: therapistSlots } =
+      await this.post("/v1/appointments/therapist_availability", {}, params);
 
     const therapists = this._therapistAvailableSchedule(
       therapistSlots,
       centerHours.appointment_interval
     );
 
-    const therapistsWithSlots = _.map(therapists, therapist => {
+    const therapistsWithSlots = _.map(therapists, (therapist) => {
       therapist.slots = _.reduce(
         therapist.available_times,
         (slots, time) => {
@@ -54,73 +52,101 @@ class Employees extends Rest {
 
     return {
       centerHours,
-      therapists: therapistsWithSlots
+      therapists: therapistsWithSlots,
     };
   }
-  async getScheduleFiltered({ centerID, serviceID, therapistIds, userID, startDateTime, endDateTime, appointmentDuration }){
-    const CenterDate = Moment(startDateTime).format('YYYY-MM-DD');
+  async getScheduleFiltered({
+    centerID,
+    serviceID,
+    therapistIds,
+    userID,
+    startDateTime,
+    endDateTime,
+    appointmentDuration,
+  }) {
+    const CenterDate = Moment(startDateTime).format("YYYY-MM-DD");
     const params = {
       CenterId: centerID,
       CenterDate,
       SlotBookings: [
         {
           GuestId: userID,
-          Services: [{ Service: { Id: serviceID } }]
-        }
-      ]
+          Services: [{ Service: { Id: serviceID } }],
+        },
+      ],
     };
 
-    const {
-      center_hours: centerHours,
-      therapist_slots: therapistSlots
-    } = await this.post("/v1/appointments/therapist_availability", {}, params);
+    const { center_hours: centerHours, therapist_slots: therapistSlots } =
+      await this.post("/v1/appointments/therapist_availability", {}, params);
 
     let therapistFilteredSlots = therapistSlots;
     if (therapistIds) {
       const therapistIdsSet = new Set(therapistIds);
-      therapistFilteredSlots = _.filter(therapistFilteredSlots, therapistSlot => therapistIdsSet.has(therapistSlot.Id));
+      therapistFilteredSlots = _.filter(
+        therapistFilteredSlots,
+        (therapistSlot) => therapistIdsSet.has(therapistSlot.Id)
+      );
     }
-    return (therapistFilteredSlots);
-    
+    return therapistFilteredSlots;
   }
 
-  async getAvailabilitiesFiltered({ centerID, serviceID, therapistIds, userID, startDateTime, endDateTime, appointmentDuration }) {
-    const CenterDate = Moment(startDateTime).format('YYYY-MM-DD');
+  async getAvailabilitiesFiltered({
+    centerID,
+    serviceID,
+    therapistIds,
+    userID,
+    startDateTime,
+    endDateTime,
+    appointmentDuration,
+  }) {
+    const CenterDate = Moment(startDateTime).format("YYYY-MM-DD");
     const params = {
       CenterId: centerID,
       CenterDate,
       SlotBookings: [
         {
           GuestId: userID,
-          Services: [{ Service: { Id: serviceID } }]
-        }
-      ]
+          Services: [{ Service: { Id: serviceID } }],
+        },
+      ],
     };
 
-    const {
-      center_hours: centerHours,
-      therapist_slots: therapistSlots
-    } = await this.post("/v1/appointments/therapist_availability", {}, params);
-    
+    const { center_hours: centerHours, therapist_slots: therapistSlots } =
+      await this.post("/v1/appointments/therapist_availability", {}, params);
+
     let therapistFilteredSlots = therapistSlots;
     if (therapistIds) {
       const therapistIdsSet = new Set(therapistIds);
-      therapistFilteredSlots = _.filter(therapistFilteredSlots, therapistSlot => therapistIdsSet.has(therapistSlot.Id));
+      therapistFilteredSlots = _.filter(
+        therapistFilteredSlots,
+        (therapistSlot) => therapistIdsSet.has(therapistSlot.Id)
+      );
     }
-    
+
     const therapists = this._therapistGetAvailableRanges(
       therapistFilteredSlots,
-      centerHours, 
+      centerHours,
       appointmentDuration
     );
 
-    const startDateTimeRounded = this._round(startDateTime, 'ceil', centerHours.appointment_interval);
-    const endDateTimeRounded = this._round(endDateTime, 'floor', centerHours.appointment_interval);
-    const inputRange = Moment.range(Moment(startDateTimeRounded), Moment(endDateTimeRounded));
-    _.map(therapists, therapist => {
+    const startDateTimeRounded = this._round(
+      startDateTime,
+      "ceil",
+      centerHours.appointment_interval
+    );
+    const endDateTimeRounded = this._round(
+      endDateTime,
+      "floor",
+      centerHours.appointment_interval
+    );
+    const inputRange = Moment.range(
+      Moment(startDateTimeRounded),
+      Moment(endDateTimeRounded)
+    );
+    _.map(therapists, (therapist) => {
       const available_times_filtered = [];
       const availableRanges = therapist.available_times;
-      availableRanges.forEach(currentRange => {
+      availableRanges.forEach((currentRange) => {
         const intersection = inputRange.intersect(currentRange);
         if (intersection) {
           available_times_filtered.push({
@@ -150,7 +176,7 @@ class Employees extends Rest {
     });
 
     return {
-      centerHours, 
+      centerHours,
       therapists,
     };
   }
@@ -166,7 +192,7 @@ class Employees extends Rest {
     start = Moment(start);
     end = Moment(end);
     const range = Moment.range(start, end);
-    return _.map(Array.from(range.by("minutes", { step })), time => {
+    return _.map(Array.from(range.by("minutes", { step })), (time) => {
       return time.format(dateTimeFormat);
     });
   }
@@ -176,7 +202,7 @@ class Employees extends Rest {
     for (const therapistSlot of therapistSlots) {
       const therapist = {
         id: therapistSlot.Id,
-        available_times: []
+        available_times: [],
       };
 
       if (therapistSlot.unavailable_times.length) {
@@ -195,7 +221,7 @@ class Employees extends Rest {
                   therapist.available_times[
                     therapist.available_times.length - 1
                   ].end_time
-                )
+                ),
               });
               therapist.available_times[
                 therapist.available_times.length - 2
@@ -223,14 +249,14 @@ class Employees extends Rest {
               end_time: this._subAppointmentInterval(
                 unavailableTime.start_time,
                 appointmentInterval
-              )
+              ),
             });
             therapist.available_times.push({
               start_time: this._formatDate(unavailableTime.end_time),
               end_time: this._subAppointmentInterval(
                 therapistSlot.schedule[0].end_time,
                 appointmentInterval
-              )
+              ),
             });
           }
         }
@@ -240,7 +266,7 @@ class Employees extends Rest {
           end_time: this._subAppointmentInterval(
             therapistSlot.schedule[0].end_time,
             appointmentInterval
-          )
+          ),
         });
       }
 
@@ -250,30 +276,43 @@ class Employees extends Rest {
     return therapists;
   }
 
-  _therapistGetAvailableRanges(therapistSlots, centerHours, appointmentDuration) {
+  _therapistGetAvailableRanges(
+    therapistSlots,
+    centerHours,
+    appointmentDuration
+  ) {
     const therapists = [];
-    therapistSlots.forEach(therapistSlot => {
+    therapistSlots.forEach((therapistSlot) => {
       let availableRanges = [];
       const therapistSchedule = therapistSlot.schedule;
-      therapistSchedule.forEach(schedule => {
-        const centerRange = Moment.range(centerHours.start_time, centerHours.end_time);
-        const therapistRange = Moment.range(schedule.start_time, schedule.end_time);
+      therapistSchedule.forEach((schedule) => {
+        const centerRange = Moment.range(
+          centerHours.start_time,
+          centerHours.end_time
+        );
+        const therapistRange = Moment.range(
+          schedule.start_time,
+          schedule.end_time
+        );
         const intersection = centerRange.intersect(therapistRange);
         if (intersection) {
           availableRanges.push(intersection);
         }
       });
-      const unavailableRanges = therapistSlot.unavailable_times.map(unavailableRange => Moment.range(unavailableRange.start_time, unavailableRange.end_time));
+      const unavailableRanges = therapistSlot.unavailable_times.map(
+        (unavailableRange) =>
+          Moment.range(unavailableRange.start_time, unavailableRange.end_time)
+      );
       let tmpAvailableRanges;
-      unavailableRanges.forEach(unavailableRange => {
+      unavailableRanges.forEach((unavailableRange) => {
         tmpAvailableRanges = [];
         let overlapFound = false;
-        availableRanges.forEach(availableRange => {
+        availableRanges.forEach((availableRange) => {
           if (!overlapFound && availableRange.overlaps(unavailableRange)) {
             overlapFound = true;
             const subtraction = availableRange.subtract(unavailableRange);
-            subtraction.forEach(range => {
-              if (range.duration('minutes') >= appointmentDuration) {
+            subtraction.forEach((range) => {
+              if (range.duration("minutes") >= appointmentDuration) {
                 tmpAvailableRanges.push(range);
               }
             });
@@ -283,8 +322,9 @@ class Employees extends Rest {
         });
         availableRanges = tmpAvailableRanges;
       });
-      availableRanges.forEach(availableRange => {
-        availableRange.end.subtract(appointmentDuration, 'minutes');
+      availableRanges.forEach((availableRange) => {
+        availableRange.end.subtract(appointmentDuration, "minutes");
+        availableRange.end.subtract(1, "minutes");
       });
       const therapist = {
         id: therapistSlot.Id,
@@ -306,8 +346,10 @@ class Employees extends Rest {
   }
   _round(date, method, duration) {
     const momentDate = Moment(date);
-    const momentDuration = Moment.duration(duration, 'minutes');
-    return Moment(Math[method]((+momentDate) / (+momentDuration)) * (+momentDuration)).format(dateTimeFormat); 
+    const momentDuration = Moment.duration(duration, "minutes");
+    return Moment(
+      Math[method](+momentDate / +momentDuration) * +momentDuration
+    ).format(dateTimeFormat);
   }
 }
 
