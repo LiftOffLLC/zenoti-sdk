@@ -44,36 +44,6 @@ class Bookings extends Rest {
   }
 
   /**
-   * @name updateTherapist
-   * @param {Object} data
-   */
-  async updateTherapist({ centerID, userID, therapistID, invoiceID }) {
-    const data = {
-      center_id: centerID,
-      guests: [
-        {
-          id: userID,
-          invoice_id: invoiceID,
-          items: [
-            {
-              therapist: {
-                id: therapistID,
-              },
-            },
-          ],
-        },
-      ],
-    };
-    if (invoice_id) {
-      data.guests[0].invoice_id = invoice_id;
-    }
-    if (invoice_item_id) {
-      data.guests[0].items[0].invoice_item_id = invoice_item_id;
-    }
-    return await this.post("/v1/bookings", {}, data);
-  }
-
-  /**
    * @name getSlots
    * @param {String} bookingId
    */
