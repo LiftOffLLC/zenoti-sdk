@@ -54,9 +54,9 @@ class Guests extends Rest {
     return data;
   }
 
-  async getAppointments({ guestId, page, size }) {
+  async getAppointments({ guestId, page, size, includeNoShowCancel = false }) {
     return await this.get(
-      `/v1/guests/${guestId}/appointments?page=${page}&size=${size}`
+      `/v1/guests/${guestId}/appointments?page=${page}&size=${size}&include_no_show_cancel=${includeNoShowCancel}`
     );
   }
 
