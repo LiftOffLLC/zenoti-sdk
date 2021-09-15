@@ -13,6 +13,7 @@ class Bookings extends Rest {
     therapistID,
     isOnlyCatalogEmployees,
     date,
+    addOnIDs = [],
   }) {
     const data = {
       center_id: centerID,
@@ -32,6 +33,17 @@ class Bookings extends Rest {
         },
       ],
     };
+    if (addOnIDs.length > 0) {
+      const addOns = [];
+      for (const addOnID of addOnIDs) {
+        addOns.push({
+          item: {
+            id: addOnID,
+          },
+        });
+      }
+      data.guests[0].items[0].add_ons = addOns;
+    }
     return await this.post("/v1/bookings", {}, data);
   }
 
