@@ -49,9 +49,9 @@ class Bookings extends Rest {
 
   async createGroupBooking({
     centerID,
-    isOnlyCatalogEmployees,
     date,
     guestsData,
+    isOnlyCatalogEmployees,
   }) {
     const data = {
       center_id: centerID,
