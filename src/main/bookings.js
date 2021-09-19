@@ -47,6 +47,46 @@ class Bookings extends Rest {
     return await this.post("/v1/bookings", {}, data);
   }
 
+  async createGroupBooking({
+    centerID,
+    isOnlyCatalogEmployees,
+    date,
+    guestsData,
+  }) {
+    const data = {
+      center_id: centerID,
+      is_only_catalog_employees: isOnlyCatalogEmployees,
+      date,
+    };
+    const guests = [];
+    for (const guestData of guestsData) {
+      const addOns = [];
+      if (guestData.addOnIDs.length > 0) {
+        for (const addOnID of guestData.addOnIDs) {
+          addOns.push({
+            item: {
+              id: addOnID,
+            },
+          });
+        }
+        guests.push({
+          id: guestData.userID,
+          items: [
+            {
+              item: {
+                id: guestData.serviceID,
+              },
+              therapist: { id: guestData.therapistID },
+              add_ons: addOns,
+            },
+          ],
+        });
+      }
+    }
+    data.guests = guests;
+    return await this.post("/v1/bookings", {}, data);
+  }
+
   /**
    * @name getSlots
    * @param {String} bookingId
@@ -71,11 +111,11 @@ class Bookings extends Rest {
     );
   }
 
-  async confirmBooking(bookingId, notes) {
+  async confirmBooking(bookingId, notes, groupName) {
     return await this.post(
       `/v1/bookings/${bookingId}/slots/confirm`,
       {},
-      { notes },
+      { notes, group_name: groupName },
       true
     );
   }
@@ -107,7 +147,7 @@ class Bookings extends Rest {
     return await this.get(`/v1/appointments/${id}`, {}, true);
   }
 
-    /**
+  /**
    * Check In appointment
    *
    * @param {String} id Uuid
