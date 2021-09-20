@@ -69,19 +69,19 @@ class Bookings extends Rest {
             },
           });
         }
-        guests.push({
-          id: guestData.userID,
-          items: [
-            {
-              item: {
-                id: guestData.serviceID,
-              },
-              therapist: { id: guestData.therapistID },
-              add_ons: addOns,
-            },
-          ],
-        });
       }
+      guests.push({
+        id: guestData.userID,
+        items: [
+          {
+            item: {
+              id: guestData.serviceID,
+            },
+            therapist: { id: guestData.therapistID },
+            add_ons: addOns,
+          },
+        ],
+      });
     }
     data.guests = guests;
     return await this.post("/v1/bookings", {}, data);
