@@ -70,7 +70,7 @@ class Bookings extends Rest {
           });
         }
       }
-      guests.push({
+      const guest = {
         id: guestData.userID,
         items: [
           {
@@ -81,7 +81,12 @@ class Bookings extends Rest {
             add_ons: addOns,
           },
         ],
-      });
+      };
+      if(guestData.invoiceID && guestData.invoiceItemID){
+          guest.invoice_id = guestData.invoiceID;
+          guest.items[0].invoice_item_id = guestData.invoiceItemID;
+      }
+      guests.push(guest);
     }
     data.guests = guests;
     return await this.post("/v1/bookings", {}, data);
