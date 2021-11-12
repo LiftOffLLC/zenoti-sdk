@@ -76,8 +76,12 @@ class Bookings extends Rest {
     );
   }
 
-  async cancelBooking(invoiceId, comments) {
-    return await this.put(`/v1/invoices/${invoiceId}/cancel`, {}, { comments });
+  async cancelBooking(invoiceId, comments, reasonId) {
+    return await this.put(
+      `/v1/invoices/${invoiceId}/cancel`,
+      {},
+      { comments, reason_id: reasonId },
+    );  
   }
 
   /**
