@@ -11,7 +11,7 @@ class Centers extends Rest {
 
   async categories({ centerId }) {
     return await this.get(
-      `/v1/centers/${centerId}/categories?include_sub_categories=true`
+      `/v1/centers/${centerId}/categories?include_sub_categories=true&type=2&size=1000`
     );
   }
 }
