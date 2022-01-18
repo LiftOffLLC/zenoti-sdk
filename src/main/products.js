@@ -16,9 +16,7 @@ class Products extends Rest {
   }
 
   async fetch({ centerId }) {
-    return await this.get(
-      `/v1/centers/${centerId}/products?expand=preferences&expand=tags&expand=catalog_info&expand=barcodes&show_in_catalog=true&expand=centers`
-    );
+    return await this.get(`/v1/centers/${centerId}/products`);
   }
 }
 
