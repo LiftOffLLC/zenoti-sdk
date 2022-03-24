@@ -82,9 +82,19 @@ class Bookings extends Rest {
           },
         ],
       };
-      if(guestData.invoiceID && guestData.invoiceItemID){
-          guest.invoice_id = guestData.invoiceID;
-          guest.items[0].invoice_item_id = guestData.invoiceItemID;
+      if (guestData.invoiceID && guestData.invoiceItemID) {
+        guest.invoice_id = guestData.invoiceID;
+        guest.items[0].invoice_item_id = guestData.invoiceItemID;
+      }
+      if (guestData.serviceAddonIds && guestData.serviceAddonIds.length > 0) {
+        for (const serviceAddOnId of guestData.serviceAddonIds) {
+          guest.items.push({
+            item: {
+              id: serviceAddOnId,
+            },
+            therapist: { id: guestData.therapistID },
+          });
+        }
       }
       guests.push(guest);
     }
