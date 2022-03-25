@@ -86,7 +86,7 @@ class Bookings extends Rest {
         guest.invoice_id = guestData.invoiceID;
         guest.items[0].invoice_item_id = guestData.invoiceItemID;
       }
-      if (guestData.serviceAddOnIDs && guestData.serviceAddOnIDs.length > 0) {
+      if (guestData.serviceAddOnIDs.length > 0) {
         for (const serviceAddOnId of guestData.serviceAddOnIDs) {
           guest.items.push({
             item: {
