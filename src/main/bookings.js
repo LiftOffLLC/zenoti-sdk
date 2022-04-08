@@ -170,6 +170,17 @@ class Bookings extends Rest {
   async checkIn(appointmentGroupId) {
     return await this.put(`/v1/appointments/${appointmentGroupId}/check_in`);
   }
+  /**
+   * Get appointments of center based on dates
+   * @param {String} centerId Uuid
+   * @param {String} startDate Date
+   * @param {String} endDate Date
+   */
+  async getAppointments(centerId, startDate, endDate) {
+    return await this.get(
+      `/v1/appointments?center_id=${centerId}&start_date=${startDate}&end_date=${endDate}`
+    );
+  }
 }
 
 module.exports = Bookings;
