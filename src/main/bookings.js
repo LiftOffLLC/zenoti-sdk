@@ -178,7 +178,7 @@ class Bookings extends Rest {
    */
   async getAppointments(centerId, startDate, endDate) {
     return await this.get(
-      `/v1/appointments?center_id=${centerId}&start_date=${startDate}&end_date=${endDate}`
+      `/v1/appointments?center_id=${centerId}&start_date=${startDate}&end_date=${endDate}&include_no_show_cancel=true`
     );
   }
 }
