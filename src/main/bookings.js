@@ -70,6 +70,7 @@ class Bookings extends Rest {
           });
         }
       }
+      const therapistID = "";
       const guest = {
         id: guestData.userID,
         items: [
@@ -77,7 +78,7 @@ class Bookings extends Rest {
             item: {
               id: guestData.serviceID,
             },
-            therapist: { id: guestData.therapistID },
+            therapist: { id: therapistID },
             add_ons: addOns,
           },
         ],
