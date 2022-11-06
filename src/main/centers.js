@@ -5,8 +5,8 @@ class Centers extends Rest {
     return await this.get("/v1/centers", params);
   }
 
-  async therapists({ centerId }) {
-    return await this.get(`/v1/centers/${centerId}/therapists`);
+  async therapists({ centerId, date }) {
+    return await this.get(`/v1/centers/${centerId}/therapists?date=${date}`);
   }
 
   async categories({ centerId }) {
