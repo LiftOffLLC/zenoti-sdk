@@ -40,6 +40,50 @@ class Bookings extends Rest {
   }
 
   /**
+   * @name createBundleBooking
+   * @param {Object} data
+   */
+   async createBundleBooking({
+    centerID,
+    serviceIDs,
+    userID,
+    therapistID,
+    isOnlyCatalogEmployees,
+    date,
+    invoiceId,
+    invoiceItemId,
+  }) {
+    const data = {
+      center_id: centerID,
+      is_only_catalog_employees: isOnlyCatalogEmployees,
+      date,
+      guests: [
+        {
+          id: userID,
+          invoice_id: invoiceId,
+          items: [
+            {
+              item: {
+                id: serviceIDs[0],
+              },
+              therapist: { id: therapistID },
+              invoice_item_id: invoiceItemId
+            },
+            {
+              item: {
+                id: serviceIDs[1],
+              },
+              therapist: { id: therapistID },
+              invoice_item_id: invoiceItemId
+            }
+          ],
+        },
+      ],
+    };
+    return await this.post("/v1/bookings", {}, data);
+  }
+
+  /**
    * @name getSlots
    * @param {String} bookingId
    */
