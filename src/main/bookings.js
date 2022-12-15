@@ -47,11 +47,11 @@ class Bookings extends Rest {
     centerID,
     serviceIDs,
     userID,
-    therapistID,
+    therapistIDs,
     isOnlyCatalogEmployees,
     date,
     invoiceId,
-    invoiceItemId,
+    invoiceItemIds,
   }) {
     const data = {
       center_id: centerID,
@@ -66,15 +66,15 @@ class Bookings extends Rest {
               item: {
                 id: serviceIDs[0],
               },
-              therapist: { id: therapistID },
-              invoice_item_id: invoiceItemId
+              therapist: { id: therapistIDs[0] },
+              invoice_item_id: invoiceItemIds[0]
             },
             {
               item: {
                 id: serviceIDs[1],
               },
-              therapist: { id: therapistID },
-              invoice_item_id: invoiceItemId
+              therapist: { id: therapistIDs[1] },
+              invoice_item_id: invoiceItemIds[1]
             }
           ],
         },
