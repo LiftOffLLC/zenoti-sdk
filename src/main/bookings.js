@@ -43,7 +43,7 @@ class Bookings extends Rest {
    * @name createBundleBooking
    * @param {Object} data
    */
-   async createBundleBooking({
+  async createBundleBooking({
     centerID,
     serviceIDs,
     userID,
@@ -66,15 +66,15 @@ class Bookings extends Rest {
               item: {
                 id: serviceIDs[0],
               },
-              therapist: { id: therapistIDs[0] },
-              invoice_item_id: invoiceItemIds[0]
+              therapist: { id: therapistIDs ? therapistIDs[0] : null },
+              invoice_item_id: invoiceItemIds ? invoiceItemIds[0] : null
             },
             {
               item: {
                 id: serviceIDs[1],
               },
-              therapist: { id: therapistIDs[1] },
-              invoice_item_id: invoiceItemIds[1]
+              therapist: { id: therapistIDs ? therapistIDs[1] : null },
+              invoice_item_id: invoiceItemIds ? invoiceItemIds[1] : null
             }
           ],
         },
