@@ -183,6 +183,7 @@ class Rest {
     });
 
     try {
+      Logger.info('Making Api Call with config', config);
       const response = await client.request(config);
 
       /** zenoti can send error though its status 200 */
