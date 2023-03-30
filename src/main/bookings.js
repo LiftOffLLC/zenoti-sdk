@@ -72,7 +72,7 @@ class Bookings extends Rest {
       `/v1/bookings/${bookingId}/slots/confirm`,
       {},
       { notes },
-      false
+      true
     );
   }
 
