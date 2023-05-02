@@ -83,14 +83,14 @@ class Rest {
       }
    */
   async getAuthorizationHeader(forceAuthToken) {
-    if (true === forceAuthToken || this.authStrategy === "ACCESS_TOKEN") {
-      const accessToken = await this.getToken();
-      return {
-        Authorization: `Bearer ${accessToken}`,
-        application_name: "docs_app",
-        application_version: "1.0.0",
-      };
-    }
+    // if (true === forceAuthToken || this.authStrategy === "ACCESS_TOKEN") {
+    //   const accessToken = await this.getToken();
+    //   return {
+    //     Authorization: `Bearer ${accessToken}`,
+    //     application_name: "docs_app",
+    //     application_version: "1.0.0",
+    //   };
+    // }
     return { Authorization: `apikey ${this.apikey}` };
   }
 
