@@ -72,7 +72,7 @@ class Bookings extends Rest {
       `/v1/bookings/${bookingId}/slots/confirm`,
       {},
       { notes },
-      true
+      false
     );
   }
 
@@ -108,7 +108,7 @@ class Bookings extends Rest {
    * @param {String} id Uuid
    */
   async getAppointment(id) {
-    return await this.get(`/v1/appointments/${id}`, {}, true);
+    return await this.get(`/v1/appointments/${id}`, {}, false);
   }
 
   
