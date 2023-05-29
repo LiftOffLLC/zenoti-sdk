@@ -63,7 +63,7 @@ class Invoices extends Rest {
         custom_payment_id: customPaymentId,
         additional_data: notes,
       },
-      true // forceAuthToken
+      false // forceAuthToken
     );
   }
 
@@ -79,7 +79,7 @@ class Invoices extends Rest {
   }
 
   async close({ invoiceId }) {
-    return await this.post(`/v1/invoices/${invoiceId}/close`, {}, {}, true);
+    return await this.post(`/v1/invoices/${invoiceId}/close`, {}, {}, false);
   }
 }
 
