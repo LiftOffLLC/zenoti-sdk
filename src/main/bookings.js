@@ -70,7 +70,6 @@ class Bookings extends Rest {
           });
         }
       }
-      const therapistID = "";
       const guest = {
         id: guestData.userID,
         items: [
@@ -78,11 +77,12 @@ class Bookings extends Rest {
             item: {
               id: guestData.serviceID,
             },
-            therapist: { id: therapistID },
+            therapist: { id: guestData.batherID ? guestData.batherID : '' },
             add_ons: addOns,
           },
         ],
       };
+      // re-check this piece of code (pranav)
       if (guestData.invoiceID && guestData.invoiceItemID) {
         guest.invoice_id = guestData.invoiceID;
         guest.items[0].invoice_item_id = guestData.invoiceItemID;
@@ -93,7 +93,7 @@ class Bookings extends Rest {
             item: {
               id: serviceAddOnId,
             },
-            therapist: { id: guestData.therapistID },
+            therapist: { id: guestData.groomerID ? guestData.groomerID : guestData.therapistID},
           });
         }
       }
