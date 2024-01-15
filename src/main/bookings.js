@@ -63,10 +63,11 @@ class Bookings extends Rest {
   }) {
     const data = {
       center_id: centerID,
-      is_only_catalog_employees: isOnlyCatalogEmployees,
       date,
+      is_only_catalog_employees: isOnlyCatalogEmployees,
+      guests: [],
     };
-    const guests = [];
+  
     for (const guestData of guestsData) {
       const addOns = [];
       if (guestData.addOnIDs.length > 0) {
@@ -78,38 +79,46 @@ class Bookings extends Rest {
           });
         }
       }
+  
       const guest = {
-        id: guestData.userID,
+        invoice_id: guestData.invoiceID ? guestData.invoiceID : null,
         items: [
           {
             item: {
               id: guestData.serviceID,
             },
-            therapist: { id: guestData.batherID ? guestData.batherID : '' },
-            add_ons: addOns,
+            therapist: {
+              id: guestData.batherID ? guestData.batherID : '',
+            },
+            invoice_item_id: guestData.invoiceItemID
+              ? guestData.invoiceItemID
+              : null,
+            add_ons: addOns.length > 0 ? { items: addOns } : null,
           },
         ],
       };
-      // re-check this piece of code (pranav)
-      if (guestData.invoiceID && guestData.invoiceItemID) {
-        guest.invoice_id = guestData.invoiceID;
-        guest.items[0].invoice_item_id = guestData.invoiceItemID;
-      }
+  
       if (guestData.serviceAddOnIDs && guestData.serviceAddOnIDs.length > 0) {
         for (const serviceAddOnId of guestData.serviceAddOnIDs) {
           guest.items.push({
             item: {
               id: serviceAddOnId,
             },
-            therapist: { id: guestData.groomerID ? guestData.groomerID : guestData.therapistID},
+            therapist: {
+              id: guestData.groomerID
+                ? guestData.groomerID
+                : guestData.therapistID,
+            },
           });
         }
       }
-      guests.push(guest);
+  
+      data.guests.push(guest);
     }
-    data.guests = guests;
+  
     return await this.post("/v1/bookings", {}, data);
   }
+  
 
   /**
    * @name getSlots
