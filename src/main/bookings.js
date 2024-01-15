@@ -89,11 +89,11 @@ class Bookings extends Rest {
       };
 
       if(guest.invoiceID){
-        guest.invoice_id = guest.invoiceID
+        guest.invoice_id = guestData.invoiceID
       }
 
       if(guest.invoiceItemID){
-        guest.items[0].invoice_item_id = guest.invoiceItemID
+        guest.items[0].invoice_item_id = guestData.invoiceItemID
       }
   
       if (guestData.serviceAddOnIDs && guestData.serviceAddOnIDs.length > 0) {
