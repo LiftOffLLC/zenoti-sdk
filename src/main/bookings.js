@@ -88,11 +88,11 @@ class Bookings extends Rest {
         ],
       };
 
-      if(guest.invoiceID){
+      if(guestData.invoiceID){
         guest.invoice_id = guestData.invoiceID
       }
 
-      if(guest.invoiceItemID){
+      if(guestData.invoiceItemID){
         guest.items[0].invoice_item_id = guestData.invoiceItemID
       }
   
