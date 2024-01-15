@@ -74,7 +74,7 @@ class Bookings extends Rest {
       }
   
       const guest = {
-        // invoice_id: guestData.invoiceID ? guestData.invoiceID : null,
+        id: guestData.userID,
         items: [
           {
             item: {
@@ -83,9 +83,6 @@ class Bookings extends Rest {
             therapist: {
               id: guestData.batherID ? guestData.batherID : '',
             },
-            // invoice_item_id: guestData.invoiceItemID
-            //   ? guestData.invoiceItemID
-            //   : null,
             add_ons: addOns.length > 0 ? { items: addOns } : null,
           },
         ],
