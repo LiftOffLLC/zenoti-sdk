@@ -61,6 +61,7 @@ class Bookings extends Rest {
     };
   
     for (const guestData of guestsData) {
+      const serviceAddOnIdMap = guestData.serviceAddOnIdMap ? guestData.serviceAddOnIdMap : {};
       const addOns = [];
       if (guestData.addOnIDs.length > 0) {
         for (const addOnID of guestData.addOnIDs) {
@@ -73,7 +74,7 @@ class Bookings extends Rest {
       }
   
       const guest = {
-        invoice_id: guestData.invoiceID ? guestData.invoiceID : null,
+        // invoice_id: guestData.invoiceID ? guestData.invoiceID : null,
         items: [
           {
             item: {
@@ -82,16 +83,25 @@ class Bookings extends Rest {
             therapist: {
               id: guestData.batherID ? guestData.batherID : '',
             },
-            invoice_item_id: guestData.invoiceItemID
-              ? guestData.invoiceItemID
-              : null,
+            // invoice_item_id: guestData.invoiceItemID
+            //   ? guestData.invoiceItemID
+            //   : null,
             add_ons: addOns.length > 0 ? { items: addOns } : null,
           },
         ],
       };
+
+      if(guest.invoiceID){
+        guest.invoice_id = guest.invoiceID
+      }
+
+      if(guest.invoiceItemID){
+        guest.items[0].invoice_item_id = guest.invoiceItemID
+      }
   
       if (guestData.serviceAddOnIDs && guestData.serviceAddOnIDs.length > 0) {
         for (const serviceAddOnId of guestData.serviceAddOnIDs) {
+          const invoice_item_id = serviceAddOnIdMap[serviceAddOnId]
           guest.items.push({
             item: {
               id: serviceAddOnId,
@@ -99,8 +109,9 @@ class Bookings extends Rest {
             therapist: {
               id: guestData.groomerID
                 ? guestData.groomerID
-                : guestData.therapistID,
+                : '',
             },
+            ...(invoice_item_id && { invoice_item_id})
           });
         }
       }
