@@ -199,6 +199,23 @@ class Bookings extends Rest {
       `/v1/appointments?center_id=${centerId}&start_date=${startDate}&end_date=${endDate}&include_no_show_cancel=true`
     );
   }
+
+    /**
+   * Remove product from booked appointment
+   * @param {String} invoiceId Uuid
+   * @param {String} itemId invoiceItemId
+   * @param {String} comments comments
+   */
+  async removeProductFromBooking({ invoiceId, itemId, comments }) {
+    return await this.delete(
+      `/v1/invoices/${invoiceId}/invoiceitems/${itemId}`,
+      {},
+      {
+        comments,
+      },
+      true // forceAuthToken
+    );
+  }
 }
 
 module.exports = Bookings;
