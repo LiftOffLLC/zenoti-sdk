@@ -201,19 +201,19 @@ class Bookings extends Rest {
   }
 
     /**
-   * Remove product from booked appointment
+   * Delete appointment
    * @param {String} invoiceId Uuid
    * @param {String} itemId invoiceItemId
    * @param {String} comments comments
    */
-  async removeProductFromBooking({ invoiceId, itemId, comments }) {
+  async deleteBooking({ invoiceId, itemId, comments }) {
     return await this.delete(
       `/v1/invoices/${invoiceId}/invoiceitems/${itemId}`,
       {},
       {
         comments,
       },
-      true // forceAuthToken
+      true
     );
   }
 }
