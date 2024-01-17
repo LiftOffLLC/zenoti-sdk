@@ -55,11 +55,13 @@ class Bookings extends Rest {
   }) {
     const data = {
       center_id: centerID,
-      is_only_catalog_employees: isOnlyCatalogEmployees,
       date,
+      is_only_catalog_employees: isOnlyCatalogEmployees,
+      guests: [],
     };
-    const guests = [];
+  
     for (const guestData of guestsData) {
+      const serviceAddOnIdMap = guestData.serviceAddOnIdMap ? guestData.serviceAddOnIdMap : {};
       const addOns = [];
       if (guestData.addOnIDs.length > 0) {
         for (const addOnID of guestData.addOnIDs) {
@@ -70,6 +72,7 @@ class Bookings extends Rest {
           });
         }
       }
+  
       const guest = {
         id: guestData.userID,
         items: [
@@ -77,31 +80,45 @@ class Bookings extends Rest {
             item: {
               id: guestData.serviceID,
             },
-            therapist: { id: guestData.batherID ? guestData.batherID : '' },
-            add_ons: addOns,
+            therapist: {
+              id: guestData.batherID ? guestData.batherID : '',
+            },
+            add_ons: addOns.length > 0 ? addOns : null,
           },
         ],
       };
-      // re-check this piece of code (pranav)
-      if (guestData.invoiceID && guestData.invoiceItemID) {
-        guest.invoice_id = guestData.invoiceID;
-        guest.items[0].invoice_item_id = guestData.invoiceItemID;
+
+      if(guestData.invoiceID){
+        guest.invoice_id = guestData.invoiceID
       }
+
+      if(guestData.invoiceItemID){
+        guest.items[0].invoice_item_id = guestData.invoiceItemID
+      }
+  
       if (guestData.serviceAddOnIDs && guestData.serviceAddOnIDs.length > 0) {
         for (const serviceAddOnId of guestData.serviceAddOnIDs) {
+          const invoice_item_id = serviceAddOnIdMap[serviceAddOnId]
           guest.items.push({
             item: {
               id: serviceAddOnId,
             },
-            therapist: { id: guestData.groomerID ? guestData.groomerID : guestData.therapistID},
+            therapist: {
+              id: guestData.groomerID
+                ? guestData.groomerID
+                : '',
+            },
+            ...(invoice_item_id && { invoice_item_id})
           });
         }
       }
-      guests.push(guest);
+  
+      data.guests.push(guest);
     }
-    data.guests = guests;
+  
     return await this.post("/v1/bookings", {}, data);
   }
+  
 
   /**
    * @name getSlots
@@ -180,6 +197,23 @@ class Bookings extends Rest {
   async getAppointments(centerId, startDate, endDate) {
     return await this.get(
       `/v1/appointments?center_id=${centerId}&start_date=${startDate}&end_date=${endDate}&include_no_show_cancel=true`
+    );
+  }
+
+    /**
+   * Delete appointment
+   * @param {String} invoiceId Uuid
+   * @param {String} itemId invoiceItemId
+   * @param {String} comments comments
+   */
+  async deleteBooking({ invoiceId, itemId, comments }) {
+    return await this.delete(
+      `/v1/invoices/${invoiceId}/invoiceitems/${itemId}`,
+      {},
+      {
+        comments,
+      },
+      true
     );
   }
 }
