@@ -83,7 +83,7 @@ class Bookings extends Rest {
             therapist: {
               id: guestData.batherID ? guestData.batherID : '',
             },
-            add_ons: addOns.length > 0 ? { items: addOns } : null,
+            add_ons: addOns.length > 0 ? addOns : null,
           },
         ],
       };
