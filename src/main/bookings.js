@@ -216,6 +216,20 @@ class Bookings extends Rest {
       true
     );
   }
+
+      /**
+   * Get employee schedule of center based on dates
+   * @param {String} centerId Uuid
+   * @param {String} startDate Date
+   * @param {String} endDate Date
+   * @param {integer} scheduleStatus The schedule status of the employee: All = -2, NotScheduled = -1, Working = 0, and the specific code for the respective custom leave.
+   */
+      async getEmployeeSchedule(centerId, startDate, endDate, scheduleStatus) {
+        return await this.get(
+          `/v1/centers/${centerId}/employee_schedules?start_date=${startDate}&end_date=${endDate}&schedule_status=${scheduleStatus}`
+        );
+      }
+    
 }
 
 module.exports = Bookings;
