@@ -161,7 +161,6 @@ class Employees extends Rest {
     var newEndDateTime = new Date(DateTime);
     return Moment(newEndDateTime).format("YYYY-MM-DDTHH:mm:ss");
   }
-
   async getScheduleFiltered({ centerID, serviceID, therapistIds, userID, startDateTime, endDateTime, appointmentDuration }){
     const CenterDate = Moment(startDateTime).format('YYYY-MM-DD');
     const params = {
@@ -190,10 +189,11 @@ class Employees extends Rest {
   }
   async getBlockOutTimes({ centerId, date }) {
     const blockedOutTimes = await this.get(
-      `v1/centers/${centerId}/blockouttimes?start_date=${date}&end_date=${date}`,
+      `v1/centers/${centerId}/blockouttimes?start_date=${date.toString()}&end_date=${date.toString()}`,
     );
     return blockedOutTimes;
   }
+
 }
 
 module.exports = Employees;
