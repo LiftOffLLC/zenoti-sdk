@@ -161,6 +161,39 @@ class Employees extends Rest {
     var newEndDateTime = new Date(DateTime);
     return Moment(newEndDateTime).format("YYYY-MM-DDTHH:mm:ss");
   }
+
+  async getScheduleFiltered({ centerID, serviceID, therapistIds, userID, startDateTime, endDateTime, appointmentDuration }){
+    const CenterDate = Moment(startDateTime).format('YYYY-MM-DD');
+    const params = {
+      CenterId: centerID,
+      CenterDate,
+      SlotBookings: [
+        {
+          GuestId: userID,
+          Services: [{ Service: { Id: serviceID } }]
+        }
+      ]
+    };
+
+    const {
+      center_hours: centerHours,
+      therapist_slots: therapistSlots
+    } = await this.post("/v1/appointments/therapist_availability", {}, params);
+
+    let therapistFilteredSlots = therapistSlots;
+    if (therapistIds) {
+      const therapistIdsSet = new Set(therapistIds);
+      therapistFilteredSlots = _.filter(therapistFilteredSlots, therapistSlot => therapistIdsSet.has(therapistSlot.Id));
+    }
+    return (therapistFilteredSlots);
+    
+  }
+  async getBlockOutTimes({ centerId, date }) {
+    const blockedOutTimes = await this.get(
+      `v1/centers/${centerId}/blockouttimes?start_date=${date}&end_date=${date}`,
+    );
+    return blockedOutTimes;
+  }
 }
 
 module.exports = Employees;
