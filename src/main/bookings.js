@@ -37,9 +37,6 @@ class Bookings extends Rest {
     if(invoice_id){
       data.guests[0].invoice_id = invoice_id;
     }
-    if (invoice_item_id){
-      data.guests[0].items[0].invoice_item_id = invoice_item_id;
-    }
     return await this.post("/v1/bookings", {}, data);
   }
 
