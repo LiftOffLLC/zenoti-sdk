@@ -96,22 +96,7 @@ class Employees extends Rest {
 
 
   async getAvailabilitiesFiltered({ centerID, serviceID, therapistIds, userID, startDateTime, endDateTime, appointmentDuration, interval}) {
-
-    console.log(`centerID =====>`, centerID);
-    console.log(`serviceID =====>`, serviceID);
-    console.log(`therapistIds =====>`, therapistIds);
-    console.log(`userID =====>`, userID);
-    console.log(`startDateTime =====>`, startDateTime);
-    console.log(`endDateTime =====>`, endDateTime);
-    console.log(`appointmentDuration =====>`, appointmentDuration);
-    console.log(`interval =====>`, interval);
-    console.log(`1-------------------------------------------------------------`);
-
     const CenterDate = Moment(startDateTime).format('YYYY-MM-DD');
-
-    console.log(`CenterDate =====>`, CenterDate);
-    console.log(`2-------------------------------------------------------------`);
-
 
     const params = {
       CenterId: centerID,
@@ -124,30 +109,16 @@ class Employees extends Rest {
       ]
     };
 
-    console.log(`params =====>`, params);
-    console.log(`JSON.stringify(params) =====>`, JSON.stringify(params));
-    console.log(`3-------------------------------------------------------------`);
-
     const {
       center_hours: centerHours,
       therapist_slots: therapistSlots
     } = await this.post("/v1/appointments/therapist_availability", {}, params);
-
-    console.log(`centerHours =====>`, centerHours);
-    console.log(`JSON.stringify(centerHours) =====>`, JSON.stringify(centerHours));
-    console.log(`therapistSlots =====>`, therapistSlots);
-    console.log(`JSON.stringify(therapistSlots) =====>`, JSON.stringify(therapistSlots));
-    console.log(`4-------------------------------------------------------------`);
     
     let therapistFilteredSlots = therapistSlots;
     if (therapistIds) {
       const therapistIdsSet = new Set(therapistIds);
       therapistFilteredSlots = _.filter(therapistFilteredSlots, therapistSlot => therapistIdsSet.has(therapistSlot.Id));
     }
-
-    console.log(`therapistFilteredSlots =====>`, therapistFilteredSlots);
-    console.log(`JSON.stringify(therapistFilteredSlots) =====>`, JSON.stringify(therapistFilteredSlots));
-    console.log(`5-------------------------------------------------------------`);
     
     const therapists = this._therapistGetAvailableRanges(
       therapistFilteredSlots,
@@ -156,36 +127,14 @@ class Employees extends Rest {
       interval
     );
 
-    console.log(`therapists =====>`, therapists);
-    console.log(`JSON.stringify(therapists) =====>`, JSON.stringify(therapists));
-    console.log(`6-------------------------------------------------------------`);
-
-    const startDateTimeRounded = this._round(startDateTime, 'ceil', centerHours.appointment_interval);
-
-    console.log(`startDateTimeRounded =====>`, startDateTimeRounded);
-    console.log(`7-------------------------------------------------------------`);
-
+    const startDateTimeRounded = this._round(startDateTime, 'ceil', centerHours.appointment_interval)
     const endDateTimeRounded = this._round(endDateTime, 'floor', centerHours.appointment_interval);
 
-    console.log(`endDateTimeRounded =====>`, endDateTimeRounded);
-    console.log(`8-------------------------------------------------------------`);
-
     const inputRange = Moment.range(Moment(startDateTimeRounded), Moment(endDateTimeRounded));
-
-    console.log(`inputRange =====>`, inputRange);
-    console.log(`9-------------------------------------------------------------`);
-
     _.map(therapists, therapist => {
       const available_times_filtered = [];
-      console.log(`therapist =====>`, therapist);
-      console.log(`JSON.stringify(therapist) =====>`, JSON.stringify(therapist));
-      console.log(`10-------------------------------------------------------------`);
       const availableRanges = therapist.available_times;
       availableRanges.forEach(currentRange => {
-        console.log(`currentRange.end =====>`, currentRange.end);
-        console.log(`inputRange.start =====>`, inputRange.start);
-        console.log(`currentRange.end.isSame(inputRange.start) =====>`, currentRange.end.isSame(inputRange.start));
-
         if (currentRange.end.isSame(inputRange.start)) {
           available_times_filtered.push({
             start_time: currentRange.end.format(dateTimeFormat),
@@ -193,54 +142,34 @@ class Employees extends Rest {
           });
         } else {
           const intersection = inputRange.intersect(currentRange);
-          console.log(`intersection =====>`, intersection);
           if (intersection) {
             available_times_filtered.push({
               start_time: intersection.start.format(dateTimeFormat),
               end_time: intersection.end.format(dateTimeFormat),
             });
-            console.log(`intersection.start.format(dateTimeFormat) =====>`, intersection.start.format(dateTimeFormat));
-            console.log(`intersection.end.format(dateTimeFormat) =====>`, intersection.end.format(dateTimeFormat));
-            console.log(`available_times_filtered =====>`, available_times_filtered);
           }
         }
-
-        console.log(`11-------------------------------------------------------------`);
       });
 
-      console.log(`12-------------------------------------------------------------`);
       therapist.slots = _.reduce(
         available_times_filtered,
         (slots, time) => {
-          console.log(`slots =====>`, slots);
-          console.log(`time =====>`, time);
           const chunks = this._intervalChunks(
             time.start_time,
             time.end_time,
             centerHours.appointment_interval,
             true
           );
-          console.log(`chunks =====>`, chunks);
-          console.log(`_.concat(slots, chunks) =====>`, _.concat(slots, chunks));
-          console.log(`13-------------------------------------------------------------`);
           return _.concat(slots, chunks);
         },
         []
       );
 
-      console.log(`available_times_filtered =====>`, available_times_filtered);
-      console.log(`14-------------------------------------------------------------`);
-
       therapist.available_times = available_times_filtered;
-
       return therapist;
     });
 
-    console.log(`centerHours =====>`, centerHours);
-    console.log(`therapists =====>`, therapists);
-    console.log(`JSON.stringify(centerHours) =====>`, JSON.stringify(centerHours));
-    console.log(`JSON.stringify(therapists) =====>`, JSON.stringify(therapists));
-    console.log(`15-------------------------------------------------------------`);
+
 
     return {
       centerHours, 
