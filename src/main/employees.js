@@ -97,7 +97,6 @@ class Employees extends Rest {
 
   async getAvailabilitiesFiltered({ centerID, serviceID, therapistIds, userID, startDateTime, endDateTime, appointmentDuration, interval}) {
     const CenterDate = Moment(startDateTime).format('YYYY-MM-DD');
-
     const params = {
       CenterId: centerID,
       CenterDate,
@@ -127,9 +126,8 @@ class Employees extends Rest {
       interval
     );
 
-    const startDateTimeRounded = this._round(startDateTime, 'ceil', centerHours.appointment_interval)
+    const startDateTimeRounded = this._round(startDateTime, 'ceil', centerHours.appointment_interval);
     const endDateTimeRounded = this._round(endDateTime, 'floor', centerHours.appointment_interval);
-
     const inputRange = Moment.range(Moment(startDateTimeRounded), Moment(endDateTimeRounded));
     _.map(therapists, therapist => {
       const available_times_filtered = [];
@@ -166,10 +164,9 @@ class Employees extends Rest {
       );
 
       therapist.available_times = available_times_filtered;
+
       return therapist;
     });
-
-
 
     return {
       centerHours, 
