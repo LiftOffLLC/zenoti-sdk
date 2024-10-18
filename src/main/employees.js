@@ -182,18 +182,29 @@ class Employees extends Rest {
       console.log(`10-------------------------------------------------------------`);
       const availableRanges = therapist.available_times;
       availableRanges.forEach(currentRange => {
-        const intersection = inputRange.intersect(currentRange);
-        console.log(`currentRange =====>`, currentRange);
-        console.log(`intersection =====>`, intersection);
-        if (intersection) {
+        console.log(`currentRange.end =====>`, currentRange.end);
+        console.log(`inputRange.start =====>`, inputRange.start);
+        console.log(`currentRange.end.isSame(inputRange.start) =====>`, currentRange.end.isSame(inputRange.start));
+
+        if (currentRange.end.isSame(inputRange.start)) {
           available_times_filtered.push({
-            start_time: intersection.start.format(dateTimeFormat),
-            end_time: intersection.end.format(dateTimeFormat),
+            start_time: currentRange.end.format(dateTimeFormat),
+            end_time: currentRange.end.format(dateTimeFormat),
           });
-          console.log(`intersection.start.format(dateTimeFormat) =====>`, intersection.start.format(dateTimeFormat));
-          console.log(`intersection.end.format(dateTimeFormat) =====>`, intersection.end.format(dateTimeFormat));
-          console.log(`available_times_filtered =====>`, available_times_filtered);
+        } else {
+          const intersection = inputRange.intersect(currentRange);
+          console.log(`intersection =====>`, intersection);
+          if (intersection) {
+            available_times_filtered.push({
+              start_time: intersection.start.format(dateTimeFormat),
+              end_time: intersection.end.format(dateTimeFormat),
+            });
+            console.log(`intersection.start.format(dateTimeFormat) =====>`, intersection.start.format(dateTimeFormat));
+            console.log(`intersection.end.format(dateTimeFormat) =====>`, intersection.end.format(dateTimeFormat));
+            console.log(`available_times_filtered =====>`, available_times_filtered);
+          }
         }
+
         console.log(`11-------------------------------------------------------------`);
       });
 
