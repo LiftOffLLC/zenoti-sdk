@@ -133,12 +133,19 @@ class Employees extends Rest {
       const available_times_filtered = [];
       const availableRanges = therapist.available_times;
       availableRanges.forEach(currentRange => {
-        const intersection = inputRange.intersect(currentRange);
-        if (intersection) {
+        if (currentRange.end.isSame(inputRange.start)) {
           available_times_filtered.push({
-            start_time: intersection.start.format(dateTimeFormat),
-            end_time: intersection.end.format(dateTimeFormat),
+            start_time: currentRange.end.format(dateTimeFormat),
+            end_time: currentRange.end.format(dateTimeFormat),
           });
+        } else {
+          const intersection = inputRange.intersect(currentRange);
+          if (intersection) {
+            available_times_filtered.push({
+              start_time: intersection.start.format(dateTimeFormat),
+              end_time: intersection.end.format(dateTimeFormat),
+            });
+          }
         }
       });
 
