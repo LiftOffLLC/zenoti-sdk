@@ -118,10 +118,19 @@ class Employees extends Rest {
       ]
     };
 
-    const {
-      center_hours: centerHours,
-      therapist_slots: therapistSlots
-    } = await this.post("/v1/appointments/therapist_availability", {}, params);
+    console.log(`params ========================+>`, params);
+
+    let centerHours, therapistSlots;
+    try {
+      const {center_hours, therapist_slots} = await this.post("/v1/appointments/therapist_availability", {}, params);
+      centerHours = center_hours
+      therapistSlots = therapist_slots
+    } catch (e) {
+      console.log(`e ==============+>`, e);
+    }
+
+    console.log(`centerHours ======================+>`, centerHours);
+    console.log(`therapistSlots =============================+>`, therapistSlots);
     
     let therapistFilteredSlots = therapistSlots;
     if (therapistIds) {
