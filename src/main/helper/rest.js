@@ -199,6 +199,10 @@ class Rest {
 
       return response.data;
     } catch (error) {
+      console.log(`error ====================+>`, error);
+      console.log(`error ======================++>`, JSON.stringify(error));
+      console.log(`type of error ====================+>`, typeof error);
+      console.log(`Object.keys(error) =======================+>`, Object.keys(error));
       if (error.response) {
         // The request was made and the server responded with a status code
         // that falls out of the range of 2xx
