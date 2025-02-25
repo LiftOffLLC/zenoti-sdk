@@ -122,11 +122,17 @@ class Employees extends Rest {
 
     let centerHours, therapistSlots;
     try {
-      const {center_hours, therapist_slots} = await this.post("/v1/appointments/therapist_availability", {}, params);
+      const { center_hours, therapist_slots } = await this.post("/v1/appointments/therapist_availability", {}, params);
       centerHours = center_hours
       therapistSlots = therapist_slots
     } catch (e) {
-      console.log(`e ==============+>`, e);
+      if (e.ErrorCode === 500 && e.Message === "Value cannot be null.\\r\\nParameter name: value") {
+        console.log(`inside if`)
+      } else {
+        console.log(`e ==============+>`, e);
+        console.log(`typeof e =======>`, typeof e);
+        console.log(`Object.keys(e) =======>`, Object.keys(e));
+      }
     }
 
     console.log(`centerHours ======================+>`, centerHours);
