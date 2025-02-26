@@ -98,8 +98,22 @@ class Bookings extends Rest {
     );
   }
 
+  /**
+   * Mark appointment as checked In
+   *
+   * @param appointmentGroupId
+   */
   async checkIn(appointmentGroupId) {
     return await this.put(`/v1/appointments/${appointmentGroupId}/check_in`);
+  }
+
+  /**
+   * Undo checked In appointment
+   *
+   * @param appointmentGroupId
+   */
+  async undoCheckIn(appointmentGroupId) {
+    return await this.put(`/v1/appointments/${appointmentGroupId}/undo_check_in`);
   }
 
   /**
