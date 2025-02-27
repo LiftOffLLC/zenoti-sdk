@@ -217,11 +217,12 @@ class Rest {
 
         if (error.response.data.Message === "Value cannot be null.\r\nParameter name: value") {
           console.log(`inside if`)
-          const err = Boom.internal(`Value cannot be null.\r\nParameter name: value`);
+          const err = Boom.internal(`Value cannot be null.Parameter name: value`);
           err.output.statusCode = 500;
-          err.output.payload.message = `Value cannot be null.\r\nParameter name: value`;
+          err.output.payload.message = `Value cannot be null.Parameter name: value`;
           err.reformat();
 
+          console.log(`err ===================+>`, err);
           throw err;
           // throw Boom.boomify(
           //     new Error(error.response.data.Message),
