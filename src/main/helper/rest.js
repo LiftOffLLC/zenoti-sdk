@@ -199,25 +199,11 @@ class Rest {
 
       return response.data;
     } catch (error) {
-      console.log(`error ====================+>`, error);
-      console.log(`error ======================++>`, JSON.stringify(error));
-      console.log(`type of error ====================+>`, typeof error);
-      console.log(`Object.keys(error) =======================+>`, Object.keys(error));
       if (error.response) {
         // The request was made and the server responded with a status code
         // that falls out of the range of 2xx
 
-        console.log(`error.response.data.Message =========>`, error.response.data.Message);
-        console.log(`error.response.data.message ============>`, error.response.data.message);
-        console.log(`error.response.data.code =============>`, error.response.data.code);
-        console.log(`error.response.status ==================>`, error.response.status);
-        console.log(`error.response.ErrorCode ==================>`, error.response.ErrorCode);
-        console.log(`error.response.data.ErrorCode ==================>`, error.response.data.ErrorCode);
-        console.log(`isItEqual =========>`, error.response.data.Message === "Value cannot be null.\r\nParameter name: value");
-
         if (error.response.data.Message === "Value cannot be null.\r\nParameter name: value") {
-          console.log(`inside if`);
-
           // Create a Boom error with a proper custom message
           const err = Boom.internal("Value cannot be null. Parameter name: value");
 
@@ -231,13 +217,8 @@ class Rest {
 
           // Ensure that err.message is also set correctly
           err.message = "Value cannot be null. Parameter name: value";
-
-          console.log(`err ===================+>`, err);
-
           throw err;
-        }
-        else {
-          console.log(`inside else`)
+        } else {
           throw Boom.boomify(
               new Error(error.response.data.Message || error.response.data.message),
               {
