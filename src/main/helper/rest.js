@@ -218,18 +218,25 @@ class Rest {
         if (error.response.data.Message === "Value cannot be null.\r\nParameter name: value") {
           console.log(`inside if`);
 
+          // Create a Boom error with a proper custom message
           const err = Boom.internal("Value cannot be null. Parameter name: value");
 
-          // Override the Boom output with a custom message
+          // Override the Boom error properties
           err.output.statusCode = 500;
-          err.output.payload.message = "Value cannot be null. Parameter name: value";
-          err.message = "Value cannot be null. Parameter name: value";  // Ensuring message is set at the root level
+          err.output.payload = {
+            statusCode: 500,
+            error: "Internal Server Error",
+            message: "Value cannot be null. Parameter name: value"
+          };
 
-          err.reformat();
+          // Ensure that err.message is also set correctly
+          err.message = "Value cannot be null. Parameter name: value";
+
           console.log(`err ===================+>`, err);
 
           throw err;
-        } else {
+        }
+        else {
           console.log(`inside else`)
           throw Boom.boomify(
               new Error(error.response.data.Message || error.response.data.message),
