@@ -212,15 +212,19 @@ class Rest {
         console.log(`error.response.data.code =============>`, error.response.data.code);
         console.log(`error.response.status ==================>`, error.response.status);
         console.log(`error.response.ErrorCode ==================>`, error.response.ErrorCode);
+        console.log(`error.response.data.ErrorCode ==================>`, error.response.data.ErrorCode);
+        console.log(`isItEqual =========>`, error.response.data.Message === "Value cannot be null.\\r\\nParameter name: value");
 
         if (error.response.data.Message === "Value cannot be null.\\r\\nParameter name: value") {
+          console.log(`inside if`)
           throw Boom.boomify(
               new Error(error.response.data.Message),
               {
-                statusCode: error.response.ErrorCode,
+                statusCode: error.response.data.ErrorCode,
               }
           );
         } else {
+          console.log(`inside else`)
           throw Boom.boomify(
               new Error(error.response.data.Message || error.response.data.message),
               {
