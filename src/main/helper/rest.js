@@ -221,6 +221,7 @@ class Rest {
               new Error(error.response.data.Message),
               {
                 statusCode: error.response.data.ErrorCode,
+                message: error.response.data.Message
               }
           );
         } else {
