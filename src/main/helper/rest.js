@@ -206,12 +206,28 @@ class Rest {
       if (error.response) {
         // The request was made and the server responded with a status code
         // that falls out of the range of 2xx
-        throw Boom.boomify(
-          new Error(error.response.data.Message || error.response.data.message),
-          {
-            statusCode: error.response.data.code || error.response.status,
-          }
-        );
+
+        console.log(`error.response.data.Message =========>`, error.response.data.Message);
+        console.log(`error.response.data.message ============>`, error.response.data.message);
+        console.log(`error.response.data.code =============>`, error.response.data.code);
+        console.log(`error.response.status ==================>`, error.response.status);
+        console.log(`error.response.ErrorCode ==================>`, error.response.ErrorCode);
+
+        if (error.response.data.Message === "Value cannot be null.\\r\\nParameter name: value") {
+          throw Boom.boomify(
+              new Error(error.response.data.Message),
+              {
+                statusCode: error.response.ErrorCode,
+              }
+          );
+        } else {
+          throw Boom.boomify(
+              new Error(error.response.data.Message || error.response.data.message),
+              {
+                statusCode: error.response.data.code || error.response.status,
+              }
+          );
+        }
       }
 
       throw error;
