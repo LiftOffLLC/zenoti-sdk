@@ -216,21 +216,19 @@ class Rest {
         console.log(`isItEqual =========>`, error.response.data.Message === "Value cannot be null.\r\nParameter name: value");
 
         if (error.response.data.Message === "Value cannot be null.\r\nParameter name: value") {
-          console.log(`inside if`)
-          const err = Boom.internal(`Value cannot be null.Parameter name: value`);
-          err.output.statusCode = 500;
-          err.output.payload.message = `Value cannot be null.Parameter name: value`;
-          err.reformat();
+          console.log(`inside if`);
 
+          const err = Boom.internal("Value cannot be null. Parameter name: value");
+
+          // Override the Boom output with a custom message
+          err.output.statusCode = 500;
+          err.output.payload.message = "Value cannot be null. Parameter name: value";
+          err.message = "Value cannot be null. Parameter name: value";  // Ensuring message is set at the root level
+
+          err.reformat();
           console.log(`err ===================+>`, err);
+
           throw err;
-          // throw Boom.boomify(
-          //     new Error(error.response.data.Message),
-          //     {
-          //       statusCode: error.response.data.ErrorCode,
-          //       message: error.response.data.Message
-          //     }
-          // );
         } else {
           console.log(`inside else`)
           throw Boom.boomify(
