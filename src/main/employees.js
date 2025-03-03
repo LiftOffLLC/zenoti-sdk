@@ -121,6 +121,8 @@ class Employees extends Rest {
       if (e.output.payload.statusCode === 500 && e.output.payload.message === "Value cannot be null. Parameter name: value") {
         console.log(`inside if block`)
         console.log(`e1 ==========>`, e)
+        centerHours = {}
+        therapistSlots = []
       } else {
         console.log(`inside else block`)
         console.log(`e2 ==========>`, e)
