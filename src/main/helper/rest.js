@@ -202,12 +202,29 @@ class Rest {
       if (error.response) {
         // The request was made and the server responded with a status code
         // that falls out of the range of 2xx
-        throw Boom.boomify(
-          new Error(error.response.data.Message || error.response.data.message),
-          {
-            statusCode: error.response.data.code || error.response.status,
-          }
-        );
+        if (error.response.data.Message === "Value cannot be null.\r\nParameter name: value") {
+          // Create a Boom error with a proper custom message
+          const err = Boom.internal("Value cannot be null. Parameter name: value");
+
+          // Override the Boom error properties
+          err.output.statusCode = 500;
+          err.output.payload = {
+            statusCode: 500,
+            error: "Internal Server Error",
+            message: "Value cannot be null. Parameter name: value"
+          };
+
+          // Ensure that err.message is also set correctly
+          err.message = "Value cannot be null. Parameter name: value";
+          throw err;
+        } else {
+          throw Boom.boomify(
+              new Error(error.response.data.Message || error.response.data.message),
+              {
+                statusCode: error.response.data.code || error.response.status,
+              }
+          );
+        }
       }
 
       throw error;
