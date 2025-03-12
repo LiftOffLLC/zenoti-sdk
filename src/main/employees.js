@@ -108,10 +108,19 @@ class Employees extends Rest {
       ]
     };
 
-    const {
-      center_hours: centerHours,
-      therapist_slots: therapistSlots
-    } = await this.post("/v1/appointments/therapist_availability", {}, params);
+    let centerHours, therapistSlots;
+    try {
+      const { center_hours, therapist_slots } = await this.post("/v1/appointments/therapist_availability", {}, params);
+      centerHours = center_hours
+      therapistSlots = therapist_slots
+    } catch (e) {
+      if (e.output.payload.statusCode === 500 && e.output.payload.message === "Value cannot be null. Parameter name: value") {
+        centerHours = {}
+        therapistSlots = []
+      } else {
+        throw e
+      }
+    }
     
     let therapistFilteredSlots = therapistSlots;
     if (therapistIds) {
